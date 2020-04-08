@@ -1,9 +1,0 @@
-{
-    "username": "Alan",
-    "password": "123456",
-    "server_ip": "10.0.0.5",
-    "send_server_port": 8090,
-    "recv_server_port": 8091,
-    "register_server_port": 2333,
-    "buffsize": 1024
-}
