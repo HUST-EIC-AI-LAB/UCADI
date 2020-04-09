@@ -8,7 +8,7 @@ We provide a simple but efficient Federated Learning(FL) framework for researche
 
 Like most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framwork in real scenarios, take hospitals for example, the client part could be deployed on the machines of the hospital end (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
 
-Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server where the server aggregates all parameters collected from the clients. Then the server will distribute the newly aggregated parameters to each clients joined the FL process. This process will iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
+Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server where the server aggregates all parameters collected from the clients. Then the server will distribute the newly aggregated parameters to each client joined the FL process. This process will iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
 
 
 
@@ -116,7 +116,7 @@ If there are problems while using torch, it may be caused by version mismatch be
    ### 3.1 Client: on client machines
 
    #### 1. Client Registration</br>
-   Modify the parameters on the configuration file `./config/config_client.json`  </br>
+   Modify the parameters in the configuration file `./config/config_client.json`  </br>
    Args:</br>
    &emsp;&emsp;1). `username`: Account information distributed by the server.</br>
    &emsp;&emsp;2). `password`: Account information distributed by the server.</br> 
@@ -128,7 +128,7 @@ If there are problems while using torch, it may be caused by version mismatch be
    
    
    #### 2. Model Download & Configuration </br>
-   Modify the parameters on the configuration file `./config/config.json`</br>
+   Modify the parameters in the configuration file `./config/config.json`</br>
    Args:</br>
          &emsp;&emsp;1). `load_model`: the path of model structure file.</br>
          &emsp;&emsp; eg. `"./download/weight_v1.pth"`</br>
@@ -155,10 +155,10 @@ If there are problems while using torch, it may be caused by version mismatch be
 
    ​  After the process of uploading a local training is completed, the client will constantly ask the sever for the newest merged model. If the server completes the merge operation, the new model will be sent to the client. After receiving the new model, the client starts the next round of local training ; If the sever has not completed the merg and the client did not get anything from the server, it will send a request again after a certain time.
 
-   ​  Start training on you local device with local data. The updated model will be saved to `./checkpoint` after each epoch training is finished. When the whole training process is finished, the process will send the difference between the initial model and the updated model to the server. For other clients, there is no way for them to get the local data on this client device, and even they can not understand the meaning of Parameter difference, because these parameters are not really meaningful in a way. So that, client privacy will be protected.</br>
+   ​  Start training on you local device with local data. The updated model will be saved to `./checkpoint` after each epoch training is finished. When the whole training process is finished, the process will send the difference between the initial model and the updated model to the server. For other clients, there is no way for them to get the local data from this client device, and to understand the meaning of the parameter difference, for these parameters are not really conprehensible in a way. Hence, client privacy is protected.</br>
 
    **Notice:**</br>
-   If there is a connection problem on the upload, you could finish it yourself.
+   If there is a connection problem on the upload, the uploading process could be finished manyally:
    Find the model difference file in `./checkpoint`(`file_path` for example).
    Execute `python upload.py file_path` to finish uploading.
 
