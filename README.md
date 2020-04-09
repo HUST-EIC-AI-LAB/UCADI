@@ -91,8 +91,9 @@ Once the scripts are executed, the hospitals will train their own models locally
 >    "model_path": "/home/user/fed_learing/model.py",
 >    "weight_pth": "/home/user/fed_learing/weight.pth"
 >}
-
-
+</br>
+</br>
+</br>
 
 ## 2. FL framework Installation
 
@@ -107,9 +108,9 @@ Run `pip install -r requirement.txt` to install the needed dependencies.
 In `requirement.txt`, we use torch matches `cuda == 9.2.` 
 
 If there are problems while using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt`, and download the correct version of Pytorch from the official website([https://pytorch.org/](https://pytorch.org/ "Pytorch")).
-
-
-
+</br>
+</br>
+</br>
 ## 3. Implementation of FL
 
    ### 3.1 Client: on client machines
@@ -147,8 +148,6 @@ If there are problems while using torch, it may be caused by version mismatch be
 
    #### 3. Train Locally </br> 
    run `python train.py`</br>
-   **Notice:**</br>
-
 
 
    #### 4. Upload Parameters
@@ -169,10 +168,11 @@ If there are problems while using torch, it may be caused by version mismatch be
 
 #### 1. Execute server program
 Run `python server_main.py`
+</br>
+</br>
+</br>
 
-
-
-## 4. More about downloaded & uploaded parameters
+## 4. More about downloading & uploading parameters
 
 The parameters uploaded to the central server in the process are actually the "gradient difference",  **not the image data** or anything else: 
 
