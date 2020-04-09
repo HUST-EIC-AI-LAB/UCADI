@@ -4,11 +4,11 @@
 
 ## 1. Introduction
 
-We provide a simple but efficient Federated Learning(FL) framework for researchers to  train the model on several remote machines.
+We provide a simple but efficient Federated Learning(FL) framework for researchers to train the model on remote machines.
 
-Like most C/S structures, the framework consists of two parts: Server side, and Clients side. Take hospitals for example, if you want to train a federated model, you could deploy the client part to the hospitals and run the server part on your center machine.
+Like most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framwork in real scenarios, take hospitals for example, the client part could be deployed on the machines of the hospital end (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
 
-Once the code is run, the hospitals will train their own model locally and  transmit the parameters to  the server and server will aggregate all these parameters from several clients. Then the server will distribute the newly aggregated parameters to each clients joined the FL process. Iterate this process for some pre-set rounds or the aggregated model reached the desired accuracy.
+Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server where the server aggregates all parameters collected from the clients. Then the server will distribute the newly aggregated parameters to each clients joined the FL process. This process will iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
 
 
 
@@ -36,23 +36,23 @@ Once the code is run, the hospitals will train their own model locally and  tran
 
    >{
    >
-   >​	"server_ip": "0.0.0.0", 
+   >​ "server_ip": "0.0.0.0", 
    >
-   >​	"send_server_port": 8091, 
+   >​ "send_server_port": 8091, 
    >
-   >​	"recv_server_port": 8090, 
+   >​ "recv_server_port": 8090, 
    >
-   >​	"register_port": 2333, 
+   >​ "register_port": 2333, 
    >
-   >​	 "min_clients": 1, 
+   >​  "min_clients": 1, 
    >
-   >​	"max_iterations": 10,  
+   >​ "max_iterations": 10,  
    >
-   >​	"model": "./server_data/model.py", 
+   >​ "model": "./server_data/model.py", 
    >
-   >​	"weight": "./server_data/30_epoch.pth", 
+   >​ "weight": "./server_data/30_epoch.pth", 
    >
-   >​	"weight_directory": "./client_data/"
+   >​ "weight_directory": "./client_data/"
    >
    >}
 
@@ -94,29 +94,28 @@ Once the code is run, the hospitals will train their own model locally and  tran
 
 
 
-## 2. Installation
+## 2. FL framework Installation
 
-You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git`  to deploy your own FL task. But there are some dependencies should be pre-installed, like pytorch and CUDA if you'd like to train on GPU.
+### Install FL framework from Github 
+You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git`  to deploy your own FL task. 
 
-
-
-#### Pre Installation
-
+#### Dependencies installation
+Some dependencies may need to be pre-installed, e.g. pytorch and CUDA, before you can train on GPU.
 Run `pip install -r requirement.txt` to install the needed dependencies.
 
 **Notice:** </br>
 In `requirement.txt`, we use torch matches `cuda == 9.2.` 
-If there is problem about torch when you try to run, it may caused by Version mismatch between torch and cuda. please check your cuda version with  `cat /usr/local/cuda/version.txt`.
 
- And download the correct version of Pytorch from the official website([https://pytorch.org/](https://pytorch.org/ "Pytorch")).
-
+If there are problems while using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt`, and download the correct version of Pytorch from the official website([https://pytorch.org/](https://pytorch.org/ "Pytorch")).
 
 
-## 3. What should user do
 
-### 3.1 Client: On client machine
+## 3. Implementation of FL
 
-1. Modify the parameters on the configuration file `./config/config_client.json`  </br>
+### 3.1 Client: on client machines
+
+#### 1. Client Registration</br>
+   Modify the parameters on the configuration file `./config/config_client.json`  </br>
    Args:</br>
    &emsp;&emsp;1). `username`: Account information distributed by the server.</br>
    &emsp;&emsp;2). `password`: Account information distributed by the server.</br> 
@@ -127,64 +126,68 @@ If there is problem about torch when you try to run, it may caused by Version mi
 
    
    
-2. Modify the parameters on the configuration file `./config/config.json`</br>
+#### 2. Model Download & Configuration </br>
+   Modify the parameters on the configuration file `./config/config.json`</br>
    Args:</br>
-      	&emsp;&emsp;1). `load_model`: the path of model structure file.</br>
-      	&emsp;&emsp; eg. `"./download/weight_v1.pth"`</br>
-      	&emsp;&emsp;2). `train_data_dir`: the path of your own data file(The home directory where the CT image is located).</br>
-      	&emsp;&emsp; eg. `"./mnt/data/dataset"`</br>
-      	&emsp;&emsp;3). `train_df_csv`: the path of csv CSV list of training sets.</br>
-      	&emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
-      	&emsp;&emsp;4). `labels_train_df_csv`: the path of CSV list of training sets.</br>
-      	&emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
-      	&emsp;&emsp;5). `use_cuda`: use cuda to train or not.</br>
-      	&emsp;&emsp;6). `epoch`: epoch of local training. (We recommend using the same training epoch on subdevices, eg. epoch=5)</br>
-      	&emsp;&emsp;7). `num_workers`: dataloader will creat `num_workers` subThread to load data. </br>
-      	&emsp;&emsp;8). `lr`: We recommed using the small learning rate in the training, eg 1e-3. With SGD optimizer.</br>
-      	&emsp;&emsp;9). `momentum`: default: 0.9.
+         &emsp;&emsp;1). `load_model`: the path of model structure file.</br>
+         &emsp;&emsp; eg. `"./download/weight_v1.pth"`</br>
+         &emsp;&emsp;2). `train_data_dir`: the path of your own data file(The home directory where the CT image is located).</br>
+         &emsp;&emsp; eg. `"./mnt/data/dataset"`</br>
+         &emsp;&emsp;3). `train_df_csv`: the path of csv CSV list of training sets.</br>
+         &emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
+         &emsp;&emsp;4). `labels_train_df_csv`: the path of CSV list of training sets.</br>
+         &emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
+         &emsp;&emsp;5). `use_cuda`: use cuda to train or not.</br>
+         &emsp;&emsp;6). `epoch`: epoch of local training. (We recommend using the same training epoch on subdevices, eg. epoch=5)</br>
+         &emsp;&emsp;7). `num_workers`: dataloader will creat `num_workers` subThread to load data. </br>
+         &emsp;&emsp;8). `lr`: We recommed using the small learning rate in the training, eg 1e-3. With SGD optimizer.</br>
+         &emsp;&emsp;9). `momentum`: default: 0.9.
 
    
 
-3. run `python train.py`</br>
-   **TODO:**</br>
+#### 3. Train Locally </br> 
+   run `python train.py`</br>
+   **Notice:**</br>
 
-   For convenient, we've integrated all process needed at client side into this file:
 
-   ​	After the process of uploading a local training is completed, the client can continuously ask sever for the new model after the server completes the merge. If the server completes the merge operation, it will be sent to the client. At this time, the client starts the next round of local training ; If the sever has not completed the merge, the client can not get anything from the server, and will send a request again at a certain time.
 
-   ​	Start training on you local device with local data. Then, the updated model will be saved to `./checkpoint` after each epoch training finished. When the whole training process finished, the process will send the difference between initial model and updated model to server. For other clients, they have no way to get the local data on this client device, and even they can not understand the meaning of Parameter difference, because these parameters are not really meaningful in a way. So that, client privacy will be protected.</br>
+#### 4. Upload Parameters
+   To make things easier, we've integrated all processes ont the client side, including training and uploading, into one single file(`python train.py`):
+
+   ​  After the process of uploading a local training is completed, the client will constantly ask the sever for the newest merged model. If the server completes the merge operation, the new model will be sent to the client. After receiving the new model, the client starts the next round of local training ; If the sever has not completed the merg and the client did not get anything from the server, it will send a request again after a certain time.
+
+   ​  Start training on you local device with local data. The updated model will be saved to `./checkpoint` after each epoch training is finished. When the whole training process is finished, the process will send the difference between the initial model and the updated model to the server. For other clients, there is no way for them to get the local data on this client device, and even they can not understand the meaning of Parameter difference, because these parameters are not really meaningful in a way. So that, client privacy will be protected.</br>
 
    Notice: If there is a connection problem on the upload, you could finish it yourself.
-   		look at the name of model difference file in `./checkpoint`, we call its path as file_path.
-   		try to execute `python upload.py file_path` to finish uploading.
+         look at the name of model difference file in `./checkpoint`, we call its path as file_path.
+         try to execute `python upload.py file_path` to finish uploading.
 
 
 
-### 3.2 Server: On server machine
+### 3.2 Server: on server machines
 
-1. run `python server_main.py`
-
-
-
-## 4. How to upload and download parameters
-
-The parameters actually are the "gradient difference", but **not the image data** or something other: 
-
-+ First the client download the model ***θ*** (which mainly refers to the model parameters) from the server. 
-
-+ Client train the model locally, use their own data, and the distributed model ***θ***.
-+ After training finished,  client will have a newly trained model ***θ'***, then, the client upload the ***(θ‘ - θ)*** to the server, which is also called "gradient difference" in deep learning process.
-
-​	So the client don't worry whether their image data will be uploaded to the server, server just need the "gradient difference" rather than the image itself. 
-
-We've designed two ways to upload the parameters to the server:
-
-1. Full Automatically: If all the process run successfully and don't have any errors, the parameter will be uploaded to the server after the training process finished.
-2. Self-automatically: Otherwise, client could upload the parameters manually, and check if there is newly aggregated parameters distributed by the server.
-
-For fully automatic process, just run `python train.py   ` at client side, we've integrated "register, download, train locally, upload" process in this file, which is convenient. Also, if there's some problems, you can execute these four process separately.	
+#### 1. Execute server program
+run `python server_main.py`
 
 
 
+## 4. More about downloaded & uploaded parameters
 
+The parameters uploaded to the central server in the process are actually the "gradient difference",  **not the image data** or anything else: 
+
++ First a client downloads the model ***θ*** (which refers to the model parameters) from the server. 
+
++ The client trains the model locally by their own data and the distributed model ***θ***.
+
++ After the training is finished, the client will have a newly trained model ***θ'*** and ***(θ‘ - θ)***, which is also called "gradient difference" in deep learning process, will be uploaded to the server.
+
+​  Therefore the client won't need to worry about the leakage of their image data, it is the "gradient difference" that is needed by the server rather than the image data. 
+
+We've designed two schemes to upload the parameters to the server:
+
+1. ***Full Automatically***: If all the processes run successfully and without any error, the parameters will be uploaded to the server after the training process is finished.
+
+2. ***Self-automatically***: Otherwise, client could upload the parameters manually, and check if there are any newly aggregated parameters distributed by the server.
+
+For fully automatic process, just run `python train.py   ` on the client side. We've integrated "register, download, train locally, upload" process in this file, which is convenient. Also, if there's some problems, you can execute these four process separately.   
 
