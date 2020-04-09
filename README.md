@@ -147,7 +147,7 @@ If there are problems while using torch, it may be caused by version mismatch be
    
 
    #### 3. Train Locally </br> 
-   run `python train.py`</br>
+   Run `python train.py`</br>
 
 
    #### 4. Upload Parameters
