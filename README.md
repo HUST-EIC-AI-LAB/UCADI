@@ -125,11 +125,9 @@ If there is problem about torch when you try to run, it may caused by Version mi
    &emsp;&emsp;5). `recv_server_port`: Receive file of model structure and initial parameters from the port.</br> 
    &emsp;&emsp;6). `register_server_port`: Registry the client IP on server before starting training.</br>
 
-2. run `python download.py`</br>
-   **TODO:**
-   Download model structure and initial weight info from server, the two files will be save on `./download`.
-
-3. Modify the parameters on the configuration file `./config/config.json`</br>
+   
+   
+2. Modify the parameters on the configuration file `./config/config.json`</br>
    Args:</br>
       	&emsp;&emsp;1). `load_model`: the path of model structure file.</br>
       	&emsp;&emsp; eg. `"./download/weight_v1.pth"`</br>
@@ -145,9 +143,17 @@ If there is problem about torch when you try to run, it may caused by Version mi
       	&emsp;&emsp;8). `lr`: We recommed using the small learning rate in the training, eg 1e-3. With SGD optimizer.</br>
       	&emsp;&emsp;9). `momentum`: default: 0.9.
 
-4. run `python train.py`</br>
+   
+
+3. run `python train.py`</br>
    **TODO:**</br>
-   Start training on you local device with local data. Then, the updated model will be saved to `./checkpoint` after each epoch training finished. When the whole training process finished, the process will send the difference between initial model and updated model to server. For other clients, they have no way to get the local data on this client device, and even they can not understand the meaning of Parameter difference, because these parameters are not really meaningful in a way. So that, client privacy will be protected.</br>
+
+   For convenient, we've integrated all process needed at client side into this file:
+
+   ​	After the process of uploading a local training is completed, the client can continuously ask sever for the new model after the server completes the merge. If the server completes the merge operation, it will be sent to the client. At this time, the client starts the next round of local training ; If the sever has not completed the merge, the client can not get anything from the server, and will send a request again at a certain time.
+
+   ​	Start training on you local device with local data. Then, the updated model will be saved to `./checkpoint` after each epoch training finished. When the whole training process finished, the process will send the difference between initial model and updated model to server. For other clients, they have no way to get the local data on this client device, and even they can not understand the meaning of Parameter difference, because these parameters are not really meaningful in a way. So that, client privacy will be protected.</br>
+
    Notice: If there is a connection problem on the upload, you could finish it yourself.
    		look at the name of model difference file in `./checkpoint`, we call its path as file_path.
    		try to execute `python upload.py file_path` to finish uploading.
@@ -162,16 +168,21 @@ If there is problem about torch when you try to run, it may caused by Version mi
 
 ## 4. How to upload and download parameters
 
-We know that two processes if you need one of the most basic premise of communication can only sign a process, we can use the PID in the local process communication to only marked a process, but only in the PID, the only local, two processes of network PID conflict odds is very big, diameter at this time we need to find something else to do it. 
+The parameters actually are the "gradient difference", but **not the image data** or something other: 
 
-We know the IP address of the IP layer can only mark the host, and the TCP layer protocol and port number identifying the host can be the only one process, so that we can use the IP address + port number + agreement only a process identified in the network. Once the processes in the network can be uniquely identified, they can communicate using sockets. 
++ First the client download the model ***θ*** (which mainly refers to the model parameters) from the server. 
+
++ Client train the model locally, use their own data, and the distributed model ***θ***.
++ After training finished,  client will have a newly trained model ***θ'***, then, the client upload the ***(θ‘ - θ)*** to the server, which is also called "gradient difference" in deep learning process.
+
+​	So the client don't worry whether their image data will be uploaded to the server, server just need the "gradient difference" rather than the image itself. 
 
 We've designed two ways to upload the parameters to the server:
 
 1. Full Automatically: If all the process run successfully and don't have any errors, the parameter will be uploaded to the server after the training process finished.
 2. Self-automatically: Otherwise, client could upload the parameters manually, and check if there is newly aggregated parameters distributed by the server.
 
-​	
+For fully automatic process, just run `python train.py   ` at client side, we've integrated "register, download, train locally, upload" process in this file, which is convenient. Also, if there's some problems, you can execute these four process separately.	
 
 
 
