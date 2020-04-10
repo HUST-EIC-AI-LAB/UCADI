@@ -12,7 +12,7 @@ Once the scripts are executed, the hospitals will train their own models locally
 
 
 
-### 1.1 Server side
+### 1.1 Server Side
 
 #### 1.1.1 Scripts
 
@@ -95,12 +95,12 @@ Once the scripts are executed, the hospitals will train their own models locally
 </br>
 </br>
 
-## 2. FL framework Installation
+## 2. FL Framework Installation
 
-### Install FL framework from Github 
+### Install FL Framework from Github 
 You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git`  to deploy your own FL task. 
 
-#### Dependencies installation
+#### Dependencies Installation
 Some dependencies may need to be pre-installed, e.g. pytorch and CUDA, before you can train on GPU.
 Run `pip install -r requirement.txt` to install the needed dependencies.
 
@@ -113,7 +113,7 @@ If there are problems while using torch, it may be caused by version mismatch be
 </br>
 ## 3. Implementation of FL
 
-   ### 3.1 Client: on client machines
+   ### 3.1 Client: On Client Machines
 
    #### 1. Client Registration</br>
    Modify the parameters in the configuration file `./config/config_client.json`  </br>
@@ -164,9 +164,9 @@ If there are problems while using torch, it may be caused by version mismatch be
 
 
 
-### 3.2 Server: on server machines
+### 3.2 Server: On Server Machines
 
-#### 1. Execute server program
+#### 1. Execute Server Program
 Run `python server_main.py`
 </br>
 </br>
@@ -186,7 +186,7 @@ The parameters uploaded to the central server in the process are actually the "g
 
 We've designed two schemes to upload the parameters to the server:
 
-1. ***Full Automatically***: If all the processes run successfully and without any error, the parameters will be uploaded to the server after the training process is finished.
+1. ***Full-automatically***: If all the processes run successfully and without any error, the parameters will be uploaded to the server after the training process is finished.
 
 2. ***Self-automatically***: Otherwise, client could upload the parameters manually, and check if there are any newly aggregated parameters distributed by the server.
 
