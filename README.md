@@ -1,4 +1,4 @@
-# COVID-2019 Prediction With Federated Learning
+# COVID-19 Prediction With Federated Learning
 
 
 
