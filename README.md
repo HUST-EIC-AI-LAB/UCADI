@@ -120,10 +120,11 @@ If there are problems while using torch, it may be caused by version mismatch be
    Args:</br>
    &emsp;&emsp;1). `username`: Account information distributed by the server.</br>
    &emsp;&emsp;2). `password`: Account information distributed by the server.</br> 
-   &emsp;&emsp;3). `server_ip`: Server IP which achieve FL process management and model parameter aggregation.</br>
-   &emsp;&emsp;4). `send_server_port`: Send updated model parameter difference from the port.</br> 
-   &emsp;&emsp;5). `recv_server_port`: Receive file of model structure and initial parameters from the port.</br> 
-   &emsp;&emsp;6). `register_server_port`: Registry the client IP on server before starting training.</br>
+   &emsp;&emsp;3). `email`: E-mail address of the corresponding coordinator.</br>
+   &emsp;&emsp;4). `server_ip`: Server IP which achieve FL process management and model parameter aggregation.</br>
+   &emsp;&emsp;5). `send_server_port`: Send updated model parameter difference from the port.</br> 
+   &emsp;&emsp;6). `recv_server_port`: Receive file of model structure and initial parameters from the port.</br> 
+   &emsp;&emsp;7). `register_server_port`: Registry the client IP on server before starting training.</br>
 
    
    
