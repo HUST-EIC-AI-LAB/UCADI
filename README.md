@@ -6,7 +6,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## 1. Introduction
 
-We provide a simple but efficient Federated Learning(FL) framework for researchers to train the model on remote machines.
+We provide a Federated Learning(FL) framework for researchers to train the model on remote machines.
 
 Similar to most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
 
@@ -207,7 +207,7 @@ After modifying the corresponding configuration, run separately:
 
 ​	Our FL process is designed to be more flexible. On the server side, you can select all registered clients to return to their parameter files and start aggregation. You can also set a minimum number of clients `min_clients` and a `maximum` delay: when enough number of clients return their files or no new client returns its file in the predefined maximum delay, the server can start the aggregation process in advance, and no longer receive any client requests.
 
- 	These contents can be found in the `server_main_raw.py` file and the corresponding code is provided.
+ These contents can be found in the `server_main_raw.py` file and the corresponding code is provided.
 
 
 
