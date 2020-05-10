@@ -1,0 +1,15 @@
+{
+  "username": "Bob",
+  "password": "123456",
+  "ip": "127.0.0.1",
+  "send_port": 12346,
+  "recv_port": 12347,
+  "server_ip": "127.0.0.1",
+  "server_port": 12342,
+  "buff_size": 1024,
+  "model_path": "./model/model.py",
+  "weight_path": "./model/initial.pth",
+  "models_dir": "./model",
+  "seed": 1434,
+  "iteration": 120
+}

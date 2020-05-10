@@ -1,195 +1,218 @@
 # COVID-19 Prediction With Federated Learning
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 Unported License</a>.
+This AI engine is licensed under The GNU general public license (GPL) v3.0 and Creative Commons Attribution-NonCommercial 3.0 Unported License.
+
+
 
 ## 1. Introduction
 
 We provide a simple but efficient Federated Learning(FL) framework for researchers to train the model on remote machines.
 
-Like most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framwork in real scenarios, take hospitals for example, the client part could be deployed on the machines of the hospital end (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
+Similar to most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
 
-Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server where the server aggregates all parameters collected from the clients. Then the server will distribute the newly aggregated parameters to each client joined the FL process. This process will iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
+Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server which aggregates all parameters collected from the clients. Then the server distribute the newly aggregated parameters to each client of the FL process. This process iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
 
+Besides these, we add some useful functions to our frame work:
 
-
-### 1.1 Server Side
-
-#### 1.1.1 Scripts
-
-1. `server_register.py`: listen to the port, if a client connect, verify the client. If the clients pass the verification by its user name and password, then the server will add this client's IP to the qualified IP list.   
-
-2. `server_send.py`: listen to the port, verify the client IP by qulified IP list, if a verified client connect, send the aggregated parameters to the client.
-
-3. `server_recv.py`: listen to the port, if  a verified client connect, receive the updated parameters from the client.
-
-4. `aggregate.py`: functional file, provides a aggregation function.
-
-5. `server_main.py`: main script of server side.
-
-   <img src="./pic/server_main.jpg" style="zoom: 50%;" />
+1. Encrypted parameters: Every Client could encrypt their model parameters trained locally via their generated private key. The Server will just aggregate these parameters but cannot decrypt them.
+2. Weighted aggregation: We also add weighted aggregation method in this framework, researchers could assign different weight to each client for the final aggregation.
 
 
 
-#### 1.1.2 Configurations
+### 1.1 Communication settings
 
-1. `server_config.json`: configuration file of server, contain some key parameters for your script running. There are some examples below.
+For the need of Encryption and Weighted Aggregation, it is not sufficient that Server and Clients only communicate the model parameters between them.
 
-   >{
-   >
-   >​ "server_ip": "0.0.0.0", 
-   >
-   >​ "send_server_port": 8091, 
-   >
-   >​ "recv_server_port": 8090, 
-   >
-   >​ "register_port": 2333, 
-   >
-   >​  "min_clients": 1, 
-   >
-   >​ "max_iterations": 10,  
-   >
-   >​ "model": "./server_data/model.py", 
-   >
-   >​ "weight": "./server_data/30_epoch.pth", 
-   >
-   >​ "weight_directory": "./client_data/"
-   >
-   >}
+We define the file content format for this framework as follows:
 
-2. `server_users.json`: a  `username:password` dictionary kept by server, `server_register.py` use it to verify whether a client is qualified.
+​	File transmitted from Client contains:
 
-   >{
-   >    "Bob": "123456",
-   >    "Alan": "123456",
-   >    "John": "123456"
-   >}
+> ​	"encrypted model_state": model encrpyted by the Client's private key
+>
+> ​	"client_weight": this Client's weight in the FL aggregation process
+
+​	File transmitted from server contains: 
+
+> ​	"model_state_dict": aggregated model parameters
+>
+> ​	"client_weight_sum": the weight_sum of Clients of  the current FL process
+>
+> ​	"client_num": the number of Clients of the current FL process
+
+And we prepare ` pack/unpack functions` both in Server and Client class.
+
+If one does not need the Encryption or Weighted Aggregation, the file format could be redefined.  All the files are stored in `.pth` format.
 
 
 
-### 1.2 Client Side
+### 1.2 Server side
 
-#### 1.2.1 Scripts
+**1.2.1**   "Server folder" contains two main scripts `server_main.py` and `fl_server.py`. In `fl_server.py` we define the `FL_Server`  class, and in `server_main` we provide an example using `FL_Server` class.
 
-1. `client_register.py`: register current IP to the server.
-2. `client_recv.py`: receive the initial/aggregated model(parameterss) from the server.
-3. `client_send.py`: send the updated model to the server.
+**1.2.2**   Before starting the FL process, we need to set some configurations for the Server.
+
+`./server/config/config.json`, you need to set the `.json` file for yourself:
+
+> ```python
+> {
+>   "ip": "0.0.0.0",
+>   "send_port": 12341,
+>   "recv_port": 12342,
+>   "clients_path": "./config/clients.json",
+>   "model_path": "./model/model.py",
+>   "weight_path": "./model/merge_model/initial.pth",
+>   "merge_model_dir": "./model/merge_model/",
+>   "client_weight_dir": "./model/client_model/",
+>   "buff_size": 1024,
+>   "iteration": 120
+> }
+> ```
+
+`ip`,  `recv_port`: socket configurations.
+
+`client_path`: `.json` file path to `clients.json`, which contains clients informations(`username` and `password`)
+
+`weight_path`: the model path which will be sent to the clients in the FL process
+
+`merge_model_dir`: after aggregations, merged model will be stored here.
+
+`client_model_dir`: model_parameters(`.pth` file) received from each clients will be saved here, and after the aggregation, all files stored here will be removed.
+
+`iterations`:  FL processing iterations num.
 
 
 
-#### 1.2.2 Configuration
+**1.2.3**  `./server/config/clients.json` stores the `username`  and `password`  of each Client.  Clients need to register to the server via these informations. If the information is wrong, the register request will be refused and cannot join the FL process.
 
-1. `config_client.json`: configuration file o the client.
+There are some examples below:
 
->{
->    "username": "Alan",
->    "password": "123456",
->    "server_ip": "10.0.0.5",
->    "send_server_port": 8090,
->    "recv_server_port": 8091,
->    "register_server_port": 2333,
->    "buffsize": 1024,
->    "model_path": "/home/user/fed_learing/model.py",
->    "weight_pth": "/home/user/fed_learing/weight.pth"
->}
-</br>
-</br>
-</br>
+> {
+>
+> ​	"Bob": "123456", 
+>
+> ​	"Alan": "123456", 
+>
+> ​	"John": "123456"
+>
+> }
 
-## 2. FL Framework Installation
 
-### Install FL Framework from Github 
-You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git`  to deploy your own FL task. 
 
-#### Dependencies Installation
-Some dependencies may need to be pre-installed, e.g. pytorch and CUDA, before you can train on GPU.
-Run `pip install -r requirement.txt` to install the needed dependencies.
+### 1.3 Client side
 
-**Notice:** </br>
-In `requirement.txt`, we use torch matches `cuda == 9.2.` 
+**1.3.1**  `./client`  folder also contains 2 main scripts `fl_client.py`  in which we define the `FL_Client` class,  and `client1_main.py` which we provide an example.
 
-If there are problems while using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt`, and download the correct version of Pytorch from the official website([https://pytorch.org/](https://pytorch.org/ "Pytorch")).
-</br>
-</br>
-</br>
+**1.3.2**  Configurations of Clients are as below:
+
+`./client/config/client1_config.json`
+
+> ```python
+> {
+>   "username": "Bob",
+>   "password": "123456",
+>   "ip": "127.0.0.1",
+>   "send_port": 12346,
+>   "recv_port": 12347,
+>   "server_ip": "127.0.0.1",
+>   "server_port": 12342,
+>   "buff_size": 1024,
+>   "model_path": "./model/model.py",
+>   "weight_path": "./model/initial.pth",
+>   "models_dir": "./model",
+>   "iteration": 120
+> }
+> ```
+
+For the client, **pay attention** to its `FL_Client.train_model_path` attribute, which stores the path of the model parameter file received from the Server;  This attribute stores "weight_path" in the `client1_config.json`  when it is initialized, but the FL_Client class will change this value when the program is running,  the user can directly read the parameter file sent from the server through this path.
+
+
+
+**1.3.3** Because the training process takes place on the client side, you also need to set you own train settings. Our configurations are given in the following as an example:
+
+> ```python
+> {
+>   "train_data_dir": "/home/ABC/EFG/dataset/",
+>   "train_df_csv": "./utils/HIJ.csv",
+>   "labels_train_df_csv": "./utils/HIJ.csv",
+>   "test_data_dir": "/home/ABC/EFG/dataset/",
+>   "test_df_csv": "./utils/test_norm.csv",
+>   "labels_test_df_csv": "./utils/test_norm.csv",
+>   "use_cuda": true,
+>   "epoch": 101,
+>   "train_batch_size": 50,
+>   "test_batch_size": 2,
+>   "num_workers": 12,
+>   "lr": 0.015,
+>   "momentum": 0.9
+> }
+> ```
+
+
+
+## 2.  FL framework installation
+
+### Install FL framework from Github
+
+You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git` to deploy your own FL task.
+
+#### Installation Dependencies
+
+Some dependencies may need to be pre-installed, e.g. pytorch and CUDA, before you can train on GPU. Run `pip install -r requirement.txt` to install the required dependencies
+
+**Notice:**
+In `requirement.txt`, we use torch matches `cuda == 9.2.`
+
+If there are problems in using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt`, and download the correct version of Pytorch from the official website(https://pytorch.org/).
+
+**ATTENTION:**
+
+`ninja`  and `re2c`  are C ++ extension methods,  you should install them as described in their github.
+
+`ninja` : https://github.com/ninja-build/ninja
+
+`re2c`   : https://github.com/skvadrik/re2c
+
+Our encryption algorithm comes from https://github.com/lucifer2859/Paillier-LWE-based-PHE
+
+
+
 ## 3. Implementation of FL
 
-   ### 3.1 Client: On Client Machines
+**3.1**   We have reduced the operations required in the communication process as much as possible. Yet, the Client-side training process and the Sever-side aggregating process still need to be customized by the researcher.
 
-   #### 1. Client Registration</br>
-   Modify the parameters in the configuration file `./config/config_client.json`  </br>
-   Args:</br>
-   &emsp;&emsp;1). `username`: Account information distributed by the server.</br>
-   &emsp;&emsp;2). `password`: Account information distributed by the server.</br> 
-   &emsp;&emsp;3). `email`: E-mail address of the corresponding coordinator.</br>
-   &emsp;&emsp;4). `server_ip`: Server IP which achieve FL process management and model parameter aggregation.</br>
-   &emsp;&emsp;5). `send_server_port`: Send updated model parameter difference from the port.</br> 
-   &emsp;&emsp;6). `recv_server_port`: Receive file of model structure and initial parameters from the port.</br> 
-   &emsp;&emsp;7). `register_server_port`: Registry the client IP on server before starting training.</br>
+We provide a rough template for the communication process, `./server/server_main_raw.py`  and `./client/client1_main_row.py`. You can design your own federal learning process accordingly.
 
-   
-   
-   #### 2. Model Download & Configuration </br>
-   Modify the parameters in the configuration file `./config/config.json`</br>
-   Args:</br>
-         &emsp;&emsp;1). `load_model`: the path of model structure file.</br>
-         &emsp;&emsp; eg. `"./download/weight_v1.pth"`</br>
-         &emsp;&emsp;2). `train_data_dir`: the path of your own data file(The home directory where the CT image is located).     </br>
-         &emsp;&emsp; eg. `"./mnt/data/dataset"`</br>
-         &emsp;&emsp;3). `train_df_csv`: the path of csv CSV list of training sets.</br>
-         &emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
-         &emsp;&emsp;4). `labels_train_df_csv`: the path of CSV list of training sets.</br>
-         &emsp;&emsp; eg. `"./utils/train_clean_data.csv"`</br>
-         &emsp;&emsp;5). `use_cuda`: use cuda to train or not.</br>
-         &emsp;&emsp;6). `epoch`: epoch of local training. (We recommend using the same training epoch on subdevices, eg. epoch=5)</br>
-         &emsp;&emsp;7). `num_workers`: dataloader will creat `num_workers` subThread to load data. </br>
-         &emsp;&emsp;8). `lr`: We recommed using the small learning rate in the training, eg 1e-3. With SGD optimizer.</br>
-         &emsp;&emsp;9). `momentum`: default: 0.9.
+In addition, we also provide our federal learning code for COVID-19 prediction as an example, which contains encryption and weighted aggregation content.
 
-   
+First run the `server_main.py`  file, then run the `client1_main.py`  file on the client machine. You can add any number of clients, only need to modify the corresponding configuration file path in `client1_main.py`, such as: `client1_config.json`  and `train_config_client1.json`.
 
-   #### 3. Train Locally </br> 
-   Run `python train.py`</br>
+> ```python
+> client = FL_Client('./config/client1_config.json')
+> 
+> client.start()
+> 
+> with open('./config/train_config_client1.json') as j:
+>     train_config = json.load(j)
+> ```
 
+After modifying the corresponding configuration, run separately:
 
-   #### 4. Upload Parameters
-   To make things easier, we've integrated all processes ont the client side, including training and uploading, into one single file(`python train.py`):
-
-   ​  After the process of uploading a local training is completed, the client will constantly ask the sever for the newest merged model. If the server completes the merge operation, the new model will be sent to the client. After receiving the new model, the client starts the next round of local training ; If the sever has not completed the merg and the client did not get anything from the server, it will send a request again after a certain time.
-
-   ​  Start training on you local device with local data. The updated model will be saved to `./checkpoint` after each epoch training is finished. When the whole training process is finished, the process will send the difference between the initial model and the updated model to the server. For other clients, there is no way for them to get the local data from this client device, and to understand the meaning of the parameter difference, for these parameters are not really conprehensible in a way. Hence, client privacy is protected.</br>
-
-   **Notice:**</br>
-   If there is a connection problem on the upload, the uploading process could be finished manyally:
-   Find the model difference file in `./checkpoint`(`file_path` for example).
-   Execute `python upload.py file_path` to finish uploading.
+1. `python server_main.py`
+2. `python client1_main.py`
+3. `pyhton client2_main.py ......`
 
 
 
-### 3.2 Server: On Server Machines
+**3.2  Some tips**
 
-#### 1. Execute Server Program
-Run `python server_main.py`
-</br>
-</br>
-</br>
+​	Our FL process is designed to be more flexible. On the server side, you can select all registered clients to return to their parameter files and start aggregation. You can also set a minimum number of clients `min_clients` and a `maximum` delay: when enough number of clients return their files or no new client returns its file in the predefined maximum delay, the server can start the aggregation process in advance, and no longer receive any client requests.
 
-## 4. More about downloading & uploading parameters
+ 	These contents can be found in the `server_main_raw.py` file and the corresponding code is provided.
 
-The parameters uploaded to the central server in the process are actually the "gradient difference",  **not the image data** or anything else: 
 
-+ First a client downloads the model ***θ*** (which refers to the model parameters) from the server. 
 
-+ The client trains the model locally by their own data and the distributed model ***θ***.
 
-+ After the training is finished, the client will have a newly trained model ***θ'*** and ***(θ‘ - θ)***, which is also called "gradient difference" in deep learning process, will be uploaded to the server.
 
-​  Therefore the client won't need to worry about the leakage of their image data, it is the "gradient difference" that is needed by the server rather than the image data. 
+## 4. Others
 
-We've designed two schemes to upload the parameters to the server:
-
-1. ***Full-automatically***: If all the processes run successfully and without any error, the parameters will be uploaded to the server after the training process is finished.
-
-2. ***Self-automatically***: Otherwise, client could upload the parameters manually, and check if there are any newly aggregated parameters distributed by the server.
-
-For fully automatic process, just run `python train.py   ` on the client side. We've integrated "register, download, train locally, upload" process in this file, which is convenient. Also, if there's some problems, you can execute these four process separately.   
-
+​	We have completed the communication between different devices in the local area network, and have done tests related to the Federated Learning process. Our communication process is based on Socket. If you want to successfully deploy this framework to different devices in different network domains, researchers may need to consider the corresponding port and firewall settings to ensure successful communication.

@@ -1,0 +1,15 @@
+{
+  "train_data_dir": "/home/xianyang/Medical_nii/dataset/",
+  "train_df_csv": "./utils/guanggu.csv",
+  "labels_train_df_csv": "./utils/guanggu.csv",
+  "test_data_dir": "/mnt/users/dataset/",
+  "test_df_csv": "./utils/test_norm.csv",
+  "labels_test_df_csv": "./utils/test_norm.csv",
+  "use_cuda": true,
+  "epoch": 101,
+  "train_batch_size": 35,
+  "test_batch_size": 2,
+  "num_workers": 12,
+  "lr": 0.01,
+  "momentum": 0.9
+}
