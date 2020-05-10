@@ -162,7 +162,8 @@ Some dependencies may need to be pre-installed, e.g. pytorch and CUDA, before yo
 **Notice:**
 In `requirement.txt`, we use torch matches `cuda == 9.2.`
 
-If there are problems in using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt`, and download the correct version of Pytorch from the official website(https://pytorch.org/).
+If there are problems in using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt` , and download the correct version of Pytorch from the official website.
+
 
 **ATTENTION:**
 
