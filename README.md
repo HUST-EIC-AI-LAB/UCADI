@@ -6,7 +6,7 @@
 
 ## 1. Introduction
 
-We developed a Federated Learning(FL) framework for international researchers to train the AI diagnosis model on remote machines.
+We developed a Federated Learning(FL) framework for international researchers to train the AI diagnosis model on remote machines. Please follow this user guide to effectively deploy the AI model empowered by Federated Learning at the hospital or other non-profit organizaitons.
 
 Similar to most C/S structures, the framework consists of two parts: Server side and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model gets trained locally, while the server part is established on the centeral machine (Server).
 
