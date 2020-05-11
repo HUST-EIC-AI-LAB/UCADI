@@ -6,15 +6,16 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## 1. Introduction
 
-We provide a Federated Learning(FL) framework for researchers to train the model on remote machines.
+We developed a Federated Learning(FL) framework for international researchers to train the AI diagnosis model on remote machines.
 
-Similar to most C/S structures, the framework consists of two parts: Server side, and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model is trained locally, while the server part is established on the center machine (Server).
+Similar to most C/S structures, the framework consists of two parts: Server side and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model gets trained locally, while the server part is established on the centeral machine (Server).
 
-Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server which aggregates all parameters collected from the clients. Then the server distribute the newly aggregated parameters to each client of the FL process. This process iterate for some pre-set rounds before accuracy of the aggregated model reached the desired level.
+Once the scripts are executed, the hospitals will train their own models locally and transmit the parameters to the server which aggregates all parameters collected from the clients. Then the server distribute the newly aggregated parameters to each client maintaining the FL process. This process is about to iterate for some pre-set rounds before the accuracy of the aggregated model reached the desired performance.
 
-Besides these, we add some useful functions to our frame work:
+Besides the above functionality, we equip our framework with addtional features:
 
 1. Encrypted parameters: Every Client could encrypt their model parameters trained locally via their generated private key. The Server will just aggregate these parameters but cannot decrypt them.
+
 2. Weighted aggregation: We also add weighted aggregation method in this framework, researchers could assign different weight to each client for the final aggregation.
 
 
@@ -153,7 +154,7 @@ For the client, **pay attention** to its `FL_Client.train_model_path` attribute,
 
 ### Install FL framework from Github
 
-You could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git` to deploy your own FL task.
+Developers could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Fedrated-Learinig.git` to deploy your own FL task.
 
 #### Installation Dependencies
 
@@ -205,7 +206,7 @@ After modifying the corresponding configuration, run separately:
 
 **3.2  Some tips**
 
-​	Our FL process is designed to be more flexible. On the server side, you can select all registered clients to return to their parameter files and start aggregation. You can also set a minimum number of clients `min_clients` and a `maximum` delay: when enough number of clients return their files or no new client returns its file in the predefined maximum delay, the server can start the aggregation process in advance, and no longer receive any client requests.
+​	Our FL process has more flexibility. On the server side, client developers can select all registered clients to return to their parameter files and start aggregation. You can also set a minimum number of clients `min_clients` and a `maximum` delay: when enough number of clients return their files or no new client returns its file in the predefined maximum delay, the server can start the aggregation process in advance, and no longer receive any client requests.
 
  These contents can be found in the `server_main_raw.py` file and the corresponding code is provided.
 
@@ -215,4 +216,4 @@ After modifying the corresponding configuration, run separately:
 
 ## 4. Others
 
-​	We have completed the communication between different devices in the local area network, and have done tests related to the Federated Learning process. Our communication process is based on Socket. If you want to successfully deploy this framework to different devices in different network domains, researchers may need to consider the corresponding port and firewall settings to ensure successful communication.
+​	We have completed the communication between different devices in the local area network, and have conducted tests related to the Federated Learning process. Our communication process is based on Socket. If you want to successfully deploy this framework to different devices in different network domains, developers may need to consider the corresponding port and firewall settings to ensure successful communication.
