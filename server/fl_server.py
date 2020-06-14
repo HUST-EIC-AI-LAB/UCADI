@@ -1,12 +1,14 @@
 # coding=utf-8
+import os
+import json
+import torch
 import logging
 import threading
-from socket import *
-from socket import SOL_SOCKET, SO_REUSEADDR
 from time import sleep
+from socket import socket, SOL_SOCKET, SO_REUSEADDR, AF_INET, SOCK_STREAM
 
-from common.tcp_utils import *
-from server.aggregation import *
+from common.tcp_utils import send_head_dir, send_file, recv_head_dir, recv_and_write_file
+from server.aggregation import aggregateWeight, getWeightList
 
 
 class FL_Server(object):
@@ -28,12 +30,12 @@ class FL_Server(object):
         self.finish = False
         self.max_delay = 10000
 
+        # Set up Clients status
         # -1 代表未参与训练（未拿模型）; 0 代表 正在训练; 1 代表训练完毕（已发送新模型）
-        # -1 means no training (no model); 0 means training;
+        # -1 means no training (no model); 0 means training in process;
         # 1 means training completed (new model has been sent)
         for client in self.all_clients:
             self.clients_status[client] = -1
-
 
         # self.recv_ip_port = (self.configs["ip"], self.configs["recv_port"])
         # self.send_ip_port = (self.configs["ip"], self.configs["send_port"])
@@ -117,7 +119,7 @@ class FL_Server(object):
                 if status == -1:
                     self.logger.info("send model to " + username + "...")
                     send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
-                    if _model_path == None:
+                    if _model_path is None:
                         model_path = self.model_path
                     else:
                         model_path = _model_path
@@ -167,29 +169,25 @@ class FL_Server(object):
               "client_weight": _client_weight,
               "client_num": _client_num}
 
-        if save_path != None:
+        if save_path is not None:
             torch.save(ob, save_path)
         else:
             torch.save(ob, self.configs["weight_path"])
 
-    def unpack_param(self, _model_param_path):
+    @staticmethod
+    def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
         state = ob['model_state_dict']
         client_weight = ob['client_weight']
 
         return state, client_weight
 
-    def flush_client_weight_dir(self, client_models_dir='./model/client_model/'):
-        """
-        清空该文件夹下的所有文件
-        :param client_models_dir:
-        :return:
+    @staticmethod
+    def flush_client_weight_dir(client_models_dir='./model/client_model/'):
+        """Clean up all files within the client_model_dir
         """
         file_list = os.listdir(client_models_dir)
         for i in range(len(file_list)):
             filePath = os.path.join(client_models_dir, file_list[i])
             os.remove(filePath)
         print("all .pth files removed")
-
-
-

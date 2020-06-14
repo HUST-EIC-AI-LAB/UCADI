@@ -3,7 +3,7 @@ import logging
 from time import sleep
 import time
 import os
-import torch
+# import torch
 from server.fl_server import FL_Server
 
 if __name__ == '__main__':
@@ -11,8 +11,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
 
-    server = FL_Server('./config/config.json')
     # some configs
+    server = FL_Server('./config/config.json')
     server.set_map_loc('cpu')
     server.start()
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         try:
             logger.info("Begin Models Aggregation......")
 
-            # begin to aggreagte
+            # begin to aggregate
             server.set_map_loc('cuda')
             new_param, weight_sum, client_num = server.aggregation(client_models_dir='./model/client_model/')
             print('weight sum:', weight_sum)
@@ -60,7 +60,6 @@ if __name__ == '__main__':
             # clean up all .pth file at ./model/client_model
             server.flush_client_weight_dir()
 
-            # 聚合后全部重置为 -1
             # after aggregation, all status of client will be set to -1
             for username in server.clients_status:
                 server.clients_status[username] = -1
@@ -68,7 +67,6 @@ if __name__ == '__main__':
 
         finally:
             server.lock.release()
-
 
     logger.info("All training finished！")
     server.stop()
