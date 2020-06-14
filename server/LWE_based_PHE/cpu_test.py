@@ -105,6 +105,7 @@ def Dec(S, c):
         m.append(value % p)
     return m
 
+
 st = time.time()
 pk, sk = KeyGen()
 print("KeyGen Time: %.6f s" % (time.time() - st))
