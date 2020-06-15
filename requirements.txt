@@ -1,4 +1,5 @@
-apex==0.1
+# apex==0.1
+# Change '==' with '>='
 certifi==2020.4.5.1
 dropblock==0.3.0
 future==0.18.2
@@ -11,5 +12,7 @@ python-dateutil==2.8.1
 pytz==2019.3
 six==1.14.0
 tensorboardX==2.0
-torch==1.5.0+cu101
-torchvision==0.6.0+cu101
+# torch==1.5.0+cu101
+# torchvision==0.6.0+cu101
+torch==1.5.0
+torchvision==0.6.0

@@ -1,12 +1,8 @@
-import torch
-# import torchvision
-# import json
 import os
+import torch
 
 # for loading the encrypted file, import this.
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-
-
+# from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 # from server_data.model import densenet3d
 
 ## This file will all the weights in the weights directory
@@ -40,11 +36,12 @@ def getWeightList(weights_store_directory, map_loc=torch.device('cuda')):
 	return weightDictList, final_weight_sum, client_num
 
 
-def aggregateWeight(weightDictList, ):
+def aggregateWeight(weightDictList):
 	"""
     :param weightDictList: transmitted diff
-    :return: aggregated weights
+    :return:
     """
+
 	print('length of dict:', len(weightDictList[0]))
 	length = len(weightDictList)
 	# keyList = weightDictList[0].keys()
@@ -61,12 +58,12 @@ def aggregateWeight(weightDictList, ):
 	return new_dict
 
 
-def weightSave(weights_direc, origin, savePath, map_loc=torch.device('cpu')):
+def weightSave(weights_direc, savePath, map_loc=torch.device('cpu')):
 	# get weight dicts list
 	weight_dict_list = getWeightList(weights_direc, map_loc=map_loc)
 
 	# average aggregation
-	res_state_dict = aggregateWeight(weight_dict_list, origin)
+	res_state_dict = aggregateWeight(weight_dict_list)
 
 	# save
 	torch.save(res_state_dict, savePath)
@@ -99,7 +96,7 @@ if __name__ == '__main__':
 	# _model_param = {'model_state_dict': test_initial,
 	#                'client_weight':torch.tensor([1])}
 	# torch.save(_model_param, './model/merge_model/initial.pth')
-	state_dict_list, weight_num = getWeightList(weights_direc)
+	state_dict_list, weight_num, _ = getWeightList(weights_direc)
 	aggre = aggregateWeight(state_dict_list)
 	torch.save(aggre, './aggregated.pth')
 	# # get weight dicts list

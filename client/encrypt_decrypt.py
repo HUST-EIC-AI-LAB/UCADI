@@ -1,10 +1,9 @@
+import os
+import copy
 import torch
 import collections
-import copy
-import os
 from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-import collections
-from client.model.model import densenet3d
+# from client.model.model import densenet3d
 
 def encrypt(public_key, model_weight):
     """
@@ -16,7 +15,7 @@ def encrypt(public_key, model_weight):
     """
     prec = 32
     bound = 2 ** 3
-    #model = torch.load(model_weight)
+    # model = torch.load(model_weight)
 
     # if not os.path.exists(shape_path):
     # 	model_parameters_dict = collection.OrderedDict()
@@ -30,11 +29,10 @@ def encrypt(public_key, model_weight):
         length = torch.numel(value) // 65536
         params = copy.deepcopy(value).view(-1).float()
         for ind in range(length):
-                params_list.append(params[ind*65536 : (ind+1)*65536])
-        params_list.append(params[length*65536 : ])
+                params_list.append(params[ind*65536: (ind+1)*65536])
+        params_list.append(params[length*65536:])
 
     params_list = [((params + bound) * 2 ** prec).long().cuda() for params in params_list]
-
     encrypted_params = [Enc(public_key, params) for params in params_list]
 
     return encrypted_params
@@ -49,32 +47,32 @@ def decrypt(private_key, encrypted_params, num, shape_parameter):
     """
     prec = 32
     bound = 2 ** 3
-    dencrypted_params = [(Dec(private_key, params).float() / (2 ** prec) / num - bound) for params in encrypted_params]
+    decrypted_params = [(Dec(private_key, params).float() / (2 ** prec) / num - bound) for params in encrypted_params]
 
     ind = 0
     weight_params = dict()
     for key in shape_parameter.keys():
             params_size, params_shape = shape_parameter[key]
             length = params_size // 65536
-            #print(length)
-            dencrypted = list()
+            # print(length)
+            decrypted = list()
             for index in range(length):
-                    dencrypted.append(dencrypted_params[ind])
+                    decrypted.append(decrypted_params[ind])
                     ind += 1
-            dencrypted.append(dencrypted_params[ind][0 : (params_size - length*65536)])
+            decrypted.append(decrypted_params[ind][0:(params_size - length*65536)])
             ind += 1
-            weight_params[key] = torch.cat(dencrypted, 0).reshape(params_shape)
+            weight_params[key] = torch.cat(decrypted, 0).reshape(params_shape)
 
-    #torch.save(weight_params, 'weight_encrypted.pth')
+    # torch.save(weight_params, 'weight_encrypted.pth')
     return weight_params
 
 
 def generate_shape(path, model):
     """
-    Record the concret size of each layer about model.
+    Record the concrete size of each layer about model.
     It will be used to decrypt.
     """
-    #print(model)
+    # print(model)
     if not os.path.exists(path):
         model_parameters_dict = collections.OrderedDict()
         for key, value in model.items():
@@ -82,18 +80,18 @@ def generate_shape(path, model):
             torch.save(model_parameters_dict, path)
 
 
-if  __name__ == '__main__':
+if __name__ == '__main__':
     pk, sk = KeyGen()
     model0 = torch.load("weight.pth")
-    generate_shape("../shape_parameter.pth",model0)
+    generate_shape("../shape_parameter.pth", model0)
     shape_parameter = torch.load("../shape_parameter.pth")
-    #print(model)
+    # print(model)
 
-    #diff_model = dict()
-    #weight = torch.tensor([1.0]).cuda()
-    #for key in model.keys():
-    #    diff_model[key] = model[key] * (weight)
-    #encrypt_params = encrypt(pk, diff_model)
+    # diff_model = dict()
+    # weight = torch.tensor([1.0]).cuda()
+    # for key in model.keys():
+    #     diff_model[key] = model[key] * (weight)
+    # encrypt_params = encrypt(pk, diff_model)
     encrypt_params = torch.load('initial.pth')['model_state_dict']
     encrypt_params2 = torch.load('initial.pth')['model_state_dict']
     model1 = decrypt(sk, encrypt_params, 1, shape_parameter)
@@ -110,26 +108,21 @@ if  __name__ == '__main__':
     encrypt_model2 = encrypt(pk, model2)
     for i in range(len(encrypt_model1)):
         encrypt_model1[i] = encrypt_model1[i] + encrypt_model2[i] + encrypt_model0[i]
-#print(encrypt_params)
-    #sum_encrypted_params = [(params + params) for params in encrypt_params]
+    # print(encrypt_params)
+    # sum_encrypted_params = [(params + params) for params in encrypt_params]
     decrypt_params = decrypt(sk, encrypt_model1, 3, shape_parameter)
     print(model0['module.classifier.bias'])
     print(model1['module.classifier.bias'])
     print(model2['module.classifier.bias'])
     print(decrypt_params['module.classifier.bias'])
-    #print(decrypt_params)
-    #model = torch.load("weight_encrypted.pth")
-    model_param = {"model_state_dict":encrypt_params, "client_weight":weight}
-    #torch.save(model_param, "initial.pth")
-    #correct = 0
-    #count = 0
-    #for key in model.keys():
-    #	correct += torch.sum(torch.eq(model[key], dencrypt_params[key])).item()
-    #	count += torch.numel(model[key])
-    #acc = float(correct / count)
-    #print('Accuracy: %.2f%%' % (acc * 100))
-
-
-
-
-
+    # print(decrypt_params)
+    # model = torch.load("weight_encrypted.pth")
+    # model_param = {"model_state_dict": encrypt_params, "client_weight": weight}
+    # torch.save(model_param, "initial.pth")
+    # correct = 0
+    # count = 0
+    # for key in model.keys():
+    # 	correct += torch.sum(torch.eq(model[key], dencrypt_params[key])).item()
+    # 	count += torch.numel(model[key])
+    # acc = float(correct / count)
+    # print('Accuracy: %.2f%%' % (acc * 100))
