@@ -41,16 +41,10 @@ def getWeightList(weights_store_directory, map_loc = torch.device('cuda')):
 def aggregateWeight(weightDictList,):
     """
 
-    :param weightDictList: transmitted diff
-    :param origin:   original weights from server
+    :param weightDictList: transmitted weight
     :return:
     """
-    """
-
-        :param weightDictList: transmitted diff
-        :param origin:   original weights from server
-        :return:
-        """
+    
     print('length of dict:', len(weightDictList[0]))
     length = len(weightDictList)
     # keyList = weightDictList[0].keys()
