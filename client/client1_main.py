@@ -1,17 +1,19 @@
-#import os
-#os.chdir("/home/xyang/fl-frame2/FL-Test-2/")
-
-import logging
-from time import sleep
+import os
+import sys
 import json
+import torch
+import logging
+import numpy as np
+import torch.nn as nn
+import torch.optim as optim
+
+from apex import amp
+from time import sleep
 from client.fl_client import FL_Client
 from client.model.model import densenet3d
-import torch.optim as optim
-import torch
-import numpy as np
-from apex import amp
-from client.common import *
 from client.train import train, add_weight_decay
+from client.common import TrainDataset, DataLoader, WarmUpLR, Logger
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,9 +21,10 @@ if __name__ == '__main__':
 
     client = FL_Client('./config/client1_config.json')
     client.start()
+    # client.register()
 
     # *********************** train part-preprocess begin *******************************
-    ## train configs and some prepartions before receive the model
+    ## train configs and some preparations before receive the model
     print('training')
     # initialize train params
 
@@ -38,9 +41,10 @@ if __name__ == '__main__':
                                     train_config['train_df_csv'],
                                     train_config['labels_train_df_csv'])
     train_batch_size = train_config['train_batch_size']
-    train_data_loader = DataLoader(dataset=train_data_train, batch_size=train_batch_size, shuffle=True,
+    train_data_loader = DataLoader(dataset=train_data_train,
+                                   batch_size=train_batch_size,
+                                   shuffle=True,
                                    num_workers=num_workers)
-
     criterion = nn.CrossEntropyLoss(weight=weight).to(device)
     ## initial lr
     lr_rate = train_config['lr']
@@ -60,7 +64,7 @@ if __name__ == '__main__':
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
     train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs - warm_epoch)
 
-    logfile = "./train_valid.log"
+    logfile = "./train_valid_client1.log"
     if os.path.exists(logfile):
         os.remove(logfile)
     sys.stdout = Logger(logfile)
@@ -72,7 +76,7 @@ if __name__ == '__main__':
         request_model_result = client.request_model()
         if request_model_result == "ok":
             request_model_finish = True
-            # if received successfully, client will get its newly updated model from server.
+            # if received successfully, client will get the newly updated model from server.
             break
         elif request_model_result == "wait":
             sleep(10)
@@ -81,7 +85,8 @@ if __name__ == '__main__':
             break
     logger.info("preparing the first communication round")
     recv_filePath = client.train_model_path
-    logger.info("Begin Training...")
+
+    logger.info("begin training...")
     _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=recv_filePath)
     ## assign weighted state to the model
     client.set_weight(iter_per_epoch)
@@ -90,17 +95,19 @@ if __name__ == '__main__':
     savePath = os.path.join(client.configs["models_dir"],
                             './model_Param_{}.pth'.format(client.configs['username'], ))
     torch.save(_model_Param, savePath)
-    # print("encrpted param[0]", enc_model_state[0])
+    # print("encrypted param[0]", enc_model_state[0])
     # send the model
     # eg: model_Param_Alan_v0.pth
     client.send_model(model_weight_path=savePath, versionNum=0)
     # *********************** train part-0 end *******************************
     # *********************** train part-preprocess end *******************************
 
-    logger.info("******\nTruely training begin\n******")
-    while True:
-        epoch_num = 0
-        logger.info('******* new  epoch *******')
+    logger.info("******\ntruly training begin\n******")
+
+    epoch_num = 0
+    # while True:
+    while epoch_num < client.configs['iteration']:  # similar with the parts from line 72 in client2_main.py
+        # logger.info('******* new  epoch *******')
         request_model_finish = False
 
         while True:
@@ -125,9 +132,9 @@ if __name__ == '__main__':
         ## decryption
         dec_model_state = client.decrypt(_model_state, _client_num)
         # dec_weight_num = client.dec_num(_weight_sum)
-        dec_weight_num = _weight_sum  # not encypted
+        dec_weight_num = _weight_sum  # not encrypted
 
-        # print("weight num claculated from server:{}".format(1.0 / dec_weight_num))
+        print("weight num calculated from server:{}".format(1.0 / dec_weight_num))
         print("some of decrypted state:")
         temp_key = list(dec_model_state.keys())[0]
         print(dec_model_state[temp_key][0])
@@ -140,7 +147,6 @@ if __name__ == '__main__':
             else:
                 dec_model_state[key] = dec_model_state[key] * _client_num
         torch.save(dec_model_state, './{}_current.pth'.format(client.configs['username']))
-
         print("After Decryption\n", dec_model_state[temp_key][0])
 
         # *********************** train part-2 begin *******************************
@@ -149,24 +155,22 @@ if __name__ == '__main__':
         fileName = 'model_state_{}.pth'.format(client.configs['username'])
         update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
                             model=model, optimizer=optimizer, log=log, warm_epoch=warm_epoch,
-                            epoch=epoch_num,
-                            # epoch=1,
-                            criterion=criterion,
-                            warmup_scheduler=warmup_scheduler, train_scheduler=train_scheduler,
-                            save_interval=5, save_folder='./model/')
+                            epoch=epoch_num, criterion=criterion, warmup_scheduler=warmup_scheduler,
+                            train_scheduler=train_scheduler, save_interval=5, save_folder='./model/')
         # *********************** train part-2 end *******************************
 
         ## encryption, then send
         trained_model_state_dict = torch.load(update_name)
-        # print("After training, some state")
-        # print(trained_model_state_dict[temp_key][0])
-        # print("**********************\n*****************************\n")
-        # print("client weight {}\n".format(client.weight))
+        print("After training, some state")
+        print(trained_model_state_dict[temp_key][0])
+        print("**********************\n*****************************\n")
+        print("client weight {}\n".format(client.weight))
         for key in trained_model_state_dict.keys():
             trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight / _weight_sum
+
         enc_model_state = client.encrypt(trained_model_state_dict)
-        # dec_model_again = client.decrypt(enc_model_state, 1)
-        # print("some test decrypted state:", dec_model_again[temp_key][0])
+        dec_model_again = client.decrypt(enc_model_state, 1)
+        print("some test decrypted state:", dec_model_again[temp_key][0])
         # client.set_weight(float(iter_per_epoch))
         # enc_client_weight = client.enc_num(client.weight)
         _model_Param = {"model_state_dict": enc_model_state,
@@ -174,15 +178,11 @@ if __name__ == '__main__':
         savePath = os.path.join(client.configs["models_dir"],
                                 './model_Param_{}.pth'.format(client.configs['username'], ))
         torch.save(_model_Param, savePath)
-        # print("encrpted param[0]", enc_model_state[0])
+        # print("encrypted param[0]", enc_model_state[0])
         # send the model
         # eg: model_Param_Alan_v0.pth
-        client.send_model(model_weight_path=savePath, versionNum=epoch_num + 1)
+        client.send_model(model_weight_path=savePath, versionNum=epoch_num+1)
         epoch_num += 1
 
-        logger.info("current training finished")
-
-
-
-
-
+    logger.info("training finished")
+    client.stop()

@@ -1,18 +1,18 @@
-import logging
-from socket import *
-from socket import SOL_SOCKET, SO_REUSEADDR
-from time import sleep
-
+import os
+import json
 import torch
-from common.tcp_utils import *
-from client.model.model import densenet3d
-from client.encrypt_decrypt import generate_shape, encrypt, decrypt
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+import logging
+from time import sleep
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
+from client.model.model import densenet3d
+from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+from client.encrypt_decrypt import generate_shape, encrypt, decrypt
+from common.tcp_utils import send_head_dir, recv_head_dir, recv_and_write_file, send_file
 
 
 class FL_Client(object):
-    def __init__(self, config_path, shape_param_path = './config/shape_parameter.pth'):
+    def __init__(self, config_path, shape_param_path='./config/shape_parameter.pth'):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ class FL_Client(object):
                 self.logger.info("Successfully received the server model!")
                 return "ok"
             elif recv_dir["msg"] == "wait":
-                self.logger.info("wating...")
+                self.logger.info("waiting...")
                 return "wait"
             else:
                 self.logger.warning("requested model was rejected!")
@@ -122,7 +122,7 @@ class FL_Client(object):
 
             if recv_dir["msg"] == "ok":
                 self.logger.info("send model to server...")
-                if model_weight_path == None:
+                if model_weight_path is None:
                     send_path = self.configs["weight_path"]
                 else:
                     send_path = model_weight_path
@@ -136,7 +136,6 @@ class FL_Client(object):
         finally:
             send_socket.close()
             sleep(1)
-
 
     # def start(self):
     #     self.logger.info("client 启动...")
@@ -171,8 +170,9 @@ class FL_Client(object):
     #     self.logger.info("等待 server 发送模型...")
     #     conn, addr = self.recv_socket.accept()
     #     try:
-    #         fileName = recv_and_write_file(conn=conn, file_dir='/'.join(self.configs["weight_path"].split("/")[:-1]) + "/",
-    #                                     buff_size=self.configs['buff_size'])
+    #         fileName = recv_and_write_file(conn=conn,
+    #                                        file_dir='/'.join(self.configs["weight_path"].split("/")[:-1]) + "/",
+    #                                        buff_size=self.configs['buff_size'])
     #         savedPath = os.path.join('/'.join(self.configs["weight_path"].split("/")[:-1]) + "/", fileName)
     #     finally:
     #         conn.close()
@@ -203,21 +203,20 @@ class FL_Client(object):
     #
     #     self.logger.info("发送模aggregation.py型完毕！")
 
-
-
     def set_weight(self, weight=1.0):
         self.weight = weight
 
     def pack_param(self, _model_state, _client_weight, save_path=None):
-        ob = {"model_state_dict":_model_state,
-              "client_weight":_client_weight}
+        ob = {"model_state_dict": _model_state,
+              "client_weight": _client_weight}
 
-        if save_path != None:
+        if save_path is not None:
             torch.save(ob, save_path)
         else:
             torch.save(ob, self.configs["weight_path"])
 
-    def unpack_param(self, _model_param_path):
+    @staticmethod
+    def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
         state = ob['model_state_dict']
         client_weight = ob['client_weight']
@@ -238,9 +237,3 @@ class FL_Client(object):
     def decrypt(self, encrypted_model_weight, client_num):
         decrypt_params = decrypt(self.sk, encrypted_model_weight, client_num, self.shape_parameter)
         return decrypt_params
-
-
-
-
-
-

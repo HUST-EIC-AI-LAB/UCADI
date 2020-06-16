@@ -1,6 +1,6 @@
-import numpy as np 
+import numpy as np
 import SimpleITK as sitk 
-import nibabel as nib 
+import nibabel as nib
 import os 
 import argparse
 from multiprocessing import Pool
@@ -40,7 +40,7 @@ def preprocess(data_list):
             write_image(image, save_root + "{}.nii.gz".format(str(image_name)))
             print("{} finished".format(image_name))
     except:
-        with open("failed_pre_norm.txt","a") as f:
+        with open("failed_pre_norm.txt", "a") as f:
             f.write(image_name + "\n")
         print("{} failed".format(image_name) + "\n")
 
@@ -54,7 +54,7 @@ def gen_path(data_dir):
         if len_split == len_thresh:
             dir_name = root.split("/")[-4]
             if dir_name == "DICOM" or dir_name == "DICOMA" or dir_name == "DICOMDIS":
-                image_name = root.split("/")[-5] + "_" + root.split("/")[-3] + "_"  + root.split("/")[-1] 
+                image_name = root.split("/")[-5] + "_" + root.split("/")[-3] + "_" + root.split("/")[-1]
                 print(image_name, root)
                 image_list.append([image_name, root])    
     return image_list
@@ -70,14 +70,15 @@ if __name__ == "__main__":
     global args
     args = parser.parse_args()
     save_root = args.output
-    if os.path.exists(save_root) == False:
+    if not os.path.exists(save_root):
         os.makedirs(save_root)
     raw_data_dir = args.input
     data_lists = gen_path(raw_data_dir)
 
-    if os.path.exists("failed_pre_norm.txt"): os.remove("failed_pre_norm.txt")
+    if os.path.exists("failed_pre_norm.txt"):
+        os.remove("failed_pre_norm.txt")
 
     p = Pool(6)
-    p.map(preprocess,data_lists)
+    p.map(preprocess, data_lists)
     p.close()
     p.join()

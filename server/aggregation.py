@@ -1,17 +1,14 @@
-import torch
-import torchvision
-import json
 import os
+import torch
 
-# for loading the encrpyted file, import this.
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-
+# for loading the encrypted file, import this.
+# from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 # from server_data.model import densenet3d
 
 ## This file will all the weights in the weights directory
 
 
-def getWeightList(weights_store_directory, map_loc = torch.device('cuda')):
+def getWeightList(weights_store_directory, map_loc=torch.device('cuda')):
     """
     weights_store_directory will Two type .pth file:
         _model_param : named as model_Name_Version.pth, store the model state_dict and client weight from the client
@@ -89,17 +86,17 @@ if __name__ == '__main__':
     # print(type(state_dict))
     # print(len(state_dict))
     # print(state_dict.keys())
-    #test_initial = []
-    #for i in range(10):
-    #    test_initial.append(torch.tensor(i))
+    # test_initial = []
+    # for i in range(10):
+    #     test_initial.append(torch.tensor(i))
 
     # state = torch.load('./model/merge_model/initial.pth')
     # print(len(state))
     # print(state[1])
-    #_model_param = {'model_state_dict': test_initial,
+    # _model_param = {'model_state_dict': test_initial,
     #                'client_weight':torch.tensor([1])}
-    #torch.save(_model_param, './model/merge_model/initial.pth')
-    state_dict_list, weight_num = getWeightList(weights_direc)
+    # torch.save(_model_param, './model/merge_model/initial.pth')
+    state_dict_list, weight_num, _ = getWeightList(weights_direc)
     aggre = aggregateWeight(state_dict_list)
     torch.save(aggre, './aggregated.pth')
     # # get weight dicts list
@@ -132,6 +129,3 @@ if __name__ == '__main__':
     # w2 = torch.tensor([0.7])
     # torch.save(w1, './server_data/client_model/model_weight_Alan_v1.pth')
     # torch.save(w2, './server_data/client_model/model_weight_Bob_v1.pth')
-
-
-

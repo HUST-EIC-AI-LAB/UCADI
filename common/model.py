@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dropblock import DropBlock3D, LinearScheduler
 from torch.utils.checkpoint import checkpoint
+from dropblock import DropBlock3D, LinearScheduler
 
 config = {
     "act_fn": lambda: nn.LeakyReLU(0.1, inplace=True),
@@ -48,11 +48,13 @@ class ConvBlock(nn.Sequential):
         self.add_module("norm_1", norm_fn(in_channels))
         self.add_module("act_1", act_fn())
         self.add_module("conv_1",
-                        nn.Conv3d(in_channels, bottleneck * growth_rate, kernel_size=1, stride=1, padding=0, bias=True))
+                        nn.Conv3d(in_channels, bottleneck * growth_rate,
+                                  kernel_size=1, stride=1, padding=0, bias=True))
         self.add_module("norm_2", norm_fn(bottleneck * growth_rate))
         self.add_module("act_2", act_fn())
         self.add_module("conv_2",
-                        nn.Conv3d(bottleneck * growth_rate, growth_rate, kernel_size=3, stride=1, padding=1, bias=True))
+                        nn.Conv3d(bottleneck * growth_rate, growth_rate,
+                                  kernel_size=3, stride=1, padding=1, bias=True))
 
     def forward(self, x):
         super_forward = super(ConvBlock, self).forward
@@ -84,8 +86,8 @@ class TransmitBlock(nn.Sequential):
 
         if not is_last_layer:
             self.add_module("conv",
-                            nn.Conv3d(in_channels, in_channels // compression, kernel_size=1, stride=1, padding=0,
-                                      bias=True))
+                            nn.Conv3d(in_channels, in_channels // compression,
+                                      kernel_size=1, stride=1, padding=0, bias=True))
             self.add_module("pool", nn.AvgPool3d(kernel_size=2, stride=2, padding=0))
         else:
             self.compression = 1
@@ -106,8 +108,8 @@ class DenseNet(nn.Module):
         norm_fn = config["norm_fn"]
         self.features = nn.Sequential()
         self.features.add_module("init_conv",
-                                 nn.Conv3d(input_channels, conv_channels, kernel_size=3, stride=1, padding=1,
-                                           bias=True))
+                                 nn.Conv3d(input_channels, conv_channels,
+                                           kernel_size=3, stride=1, padding=1, bias=True))
         self.features.add_module("init_norm", norm_fn(conv_channels))
         self.features.add_module("init_act", act_fn())
         self.dropblock = LinearScheduler(
@@ -126,7 +128,7 @@ class DenseNet(nn.Module):
                 self.features.add_module("block{}_layer{}".format(i + 1, j + 1), conv_layer)
                 channels = conv_layer.out_channels
 
-            # dowmsample
+            # down-sample
             trans_layer = TransmitBlock(channels, is_last_layer=(i == len(down_structure) - 1))
             self.features.add_module("transition{}".format(i + 1), trans_layer)
             channels = trans_layer.out_channels

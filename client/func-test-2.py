@@ -2,8 +2,8 @@ import torch
 from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec 
 
 if __name__ == "__main__":
-    #fileName = './server_data_four/weight_v1.pth'
-    fileName  = '../client2/model/model_Param_Alan.pth'
+    # fileName = './server_data_four/weight_v1.pth'
+    fileName = '../client2/model/model_Param_Alan.pth'
     print("loading {}".format(fileName))
     mm = torch.load(fileName)
     enc = mm['model_state_dict']

@@ -2,11 +2,11 @@ from torch.optim.lr_scheduler import _LRScheduler
 
 
 class WarmUpLR(_LRScheduler):
-    """warmup_training learning rate scheduler
+    """warmup training learning rate scheduler
 
     Args:
-        optimizer: optimzier(e.g. SGD)
-        total_iters: totoal_iters of warmup phase
+        optimizer: optimizer (e.g. SGD)
+        total_iters: total iters of warmup phase
     """
 
     def __init__(self, optimizer, total_iters, last_epoch=-1):

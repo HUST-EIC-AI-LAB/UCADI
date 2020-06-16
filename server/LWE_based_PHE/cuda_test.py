@@ -1,7 +1,7 @@
 import torch
 import random
-import time
-import math
+# import time
+# import math
 import os
 
 from torch.utils.cpp_extension import load
@@ -57,13 +57,13 @@ def get_uniform_random_matrix(row, col, seed):
 def KeyGen(seed):
     work_path = os.getcwd()
     key_path = work_path + '/key/p_%d_q_%d_n_%d_l_%d_s_%d.pth' % (p_, q_, n, l, seed)
-   # print(key_path)
+    # print(key_path)
     if os.path.exists(key_path):
         key = torch.load(key_path)
         pk = key['pk']
         sk = key['sk']
     else:
-        #random.seed(seed)
+        # random.seed(seed)
         torch.manual_seed(seed)
         R = torch.clamp(torch.randn(n, l) * s, min=-3*s, max=3*s).long().cuda()
         torch.manual_seed(seed + 1)
@@ -90,33 +90,31 @@ def Enc(pk, m):
 def Dec(sk, c):
     return (vecmul(c.c1, sk) + c.c2) % p
 
-#torch.cuda.set_device(2)
-#pk, sk = KeyGen()
+# torch.cuda.set_device(2)
+# pk, sk = KeyGen()
 
-#m1 = torch.randperm(l).cuda()
-#m2 = torch.randperm(l).cuda()
-#m1 = (torch.rand(l) * 2 ** prec).long().cuda()
-#m2 = (torch.rand(l) * 2 ** prec).long().cuda()
+# m1 = torch.randperm(l).cuda()
+# m2 = torch.randperm(l).cuda()
+# m1 = (torch.rand(l) * 2 ** prec).long().cuda()
+# m2 = (torch.rand(l) * 2 ** prec).long().cuda()
 
-#st = time.time()
-#c1 = Enc(pk, m1)
-#c2 = Enc(pk, m2)
-#print("Encrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / (2 * l)))
+# st = time.time()
+# c1 = Enc(pk, m1)
+# c2 = Enc(pk, m2)
+# print("Encrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / (2 * l)))
 
-#st = time.time()
-#c = c1 + c2
-#print("Add Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
+# st = time.time()
+# c = c1 + c2
+# print("Add Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
 
-#st = time.time()
-#m = Dec(sk, c)
-#print("Decrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
+# st = time.time()
+# m = Dec(sk, c)
+# print("Decrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
 
-#print(m1)
-#print(m2)
-#print(m1 + m2)
-#print(m)
+# print(m1)
+# print(m2)
+# print(m1 + m2)
+# print(m)
 
-#acc = torch.mean(torch.eq(m, m1 + m2).float())
-#print('Accuracy: %.2f%%' % (acc*100))
-
-
+# acc = torch.mean(torch.eq(m, m1 + m2).float())
+# print('Accuracy: %.2f%%' % (acc*100))
