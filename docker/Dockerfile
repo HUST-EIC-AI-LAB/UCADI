@@ -1,19 +1,22 @@
-# Base image must at least have pytorch and CUDA installed.
-ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:19.07-py3
-FROM $BASE_IMAGE
-ARG BASE_IMAGE
-RUN echo "Installing Apex on top of ${BASE_IMAGE}"
-# make sure we don't overwrite some existing directory called "apex"
-WORKDIR /tmp/unique_for_apex
-# uninstall Apex if present, twice to make absolutely sure :)
-RUN pip uninstall -y apex || :
-RUN pip uninstall -y apex || :
-# SHA is something the user can touch to force recreation of this Docker layer,
-# and therefore force cloning of the latest version of Apex
-RUN SHA=ToUcHMe git clone https://github.com/NVIDIA/apex.git
-WORKDIR /tmp/unique_for_apex/apex
-RUN pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" .
-WORKDIR /workspace/FL_COV19
-COPY ./requirements.txt /workspace/FL_COV19
-RUN pip install -r requirements.txt
-WORKDIR /workspace/FL_COV19
+FROM pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+WORKDIR /workspace/FL_COVID19
+RUN apt-get update
+RUN apt-get -y install apt-file apt-utils
+RUN apt-file update
+RUN apt-get -y install vim git re2c screen build-essential libcap-dev
+COPY ./docker/requirements_docker.txt /workspace/FL_COVID19
+RUN pip install -r requirements_docker.txt
+
+# ref: https://github.com/NVIDIA/apex
+RUN git clone https://github.com/NVIDIA/apex
+WORKDIR /workspace/FL_COVID19/apex
+RUN pip install -v --no-cache-dir ./
+
+# ref: https://github.com/ninja-build/ninja
+WORKDIR /workspace/FL_COVID19
+RUN git clone https://github.com/ninja-build/ninja.git
+WORKDIR /workspace/FL_COVID19/ninja
+./configure.py --bootstrap
+
+RUN useradd hcw
+WORKDIR /workspace/FL_COVID19

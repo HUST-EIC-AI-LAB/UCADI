@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import logging
-from time import sleep
-import time
 import os
-# import torch
+import sys
+import time
+import logging
+base_dir = os.path.abspath(__file__)
+sys.path.append(os.dirname(base_dir))
 from server.fl_server import FL_Server
 
 if __name__ == '__main__':

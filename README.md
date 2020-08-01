@@ -199,8 +199,8 @@ To set up, first run the `server_main.py`  file, then run the `client1_main.py` 
 
 After modifying the corresponding configuration, run separately:
 
-1. `python server_main.py`
-2. `python client1_main.py`
+1. `cd server && python server_main.py`
+2. `cd ../client && python client1_main.py`
 3. `python client2_main.py ......`
 
 

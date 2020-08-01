@@ -47,7 +47,7 @@ class FL_Server(object):
         # some configurations about models
         self.map_loc = torch.device('cuda')
         self.model_path = self.configs['weight_path']
-        self.client_weight_dir = self.configs['client_weight_dic']
+        self.client_weight_dir = self.configs['client_weight_dir']
 
     def set_map_loc(self, device):
         if device not in ['cuda', 'cpu']:
