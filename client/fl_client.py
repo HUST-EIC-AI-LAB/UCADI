@@ -25,7 +25,7 @@ class FL_Client(object):
         # generate public_key and private_key
         self.seed = self.configs['seed']
         self.model = densenet3d().cuda()
-        self.pk, self.sk = KeyGen()
+        self.pk, self.sk = KeyGen(self.seed)
 
         if os.path.exists(shape_param_path):
             pass

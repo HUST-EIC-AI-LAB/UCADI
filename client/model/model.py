@@ -111,7 +111,7 @@ class DenseNet(nn.Module):
             DropBlock3D(drop_prob=0., block_size=5),
             start_value=0.,
             stop_value=0.5,
-            nr_steps=5e3
+            nr_steps=5000
         )
 
         channels = conv_channels

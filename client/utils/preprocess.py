@@ -1,8 +1,9 @@
-import numpy as np
-import SimpleITK as sitk 
-import nibabel as nib
-import os 
+
+import os
 import argparse
+import numpy as np
+import nibabel as nib
+import SimpleITK as sitk
 from multiprocessing import Pool
 
 def write_image(image, path):
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument('--output', default='/mnt/data/zxy/dataset/', type=str, metavar='SAVE',
                         help='directory to save nii.gz data (default: none)')
     
-    global args
+    # global args
     args = parser.parse_args()
     save_root = args.output
     if not os.path.exists(save_root):
@@ -82,3 +83,4 @@ if __name__ == "__main__":
     p.map(preprocess, data_lists)
     p.close()
     p.join()
+

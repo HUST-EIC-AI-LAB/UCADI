@@ -9,6 +9,7 @@ import torch.optim as optim
 
 from apex import amp
 from time import sleep
+sys.path.append('../')
 from client.fl_client import FL_Client
 from client.model.model import densenet3d
 from client.train import train, add_weight_decay
@@ -32,6 +33,9 @@ if __name__ == '__main__':
     with open('./config/train_config_client1.json') as j:
         train_config = json.load(j)
 
+	if train_config['use_cuda']:
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(train_config['gpu'])	
     device = 'cuda' if train_config['use_cuda'] else 'cpu'
     model = densenet3d().to(device)
     weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()

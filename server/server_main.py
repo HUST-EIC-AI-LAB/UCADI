@@ -3,9 +3,10 @@ import os
 import sys
 import time
 import logging
-base_dir = os.path.abspath(__file__)
-sys.path.append(os.dirname(base_dir))
-from server.fl_server import FL_Server
+from os.path import abspath, dirname
+base_dir = dirname(abspath(__file__))
+sys.path.append(dirname(base_dir))
+from fl_server import FL_Server
 
 if __name__ == '__main__':
 

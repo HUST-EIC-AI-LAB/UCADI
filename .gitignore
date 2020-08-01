@@ -1,2 +1,7 @@
 __pycache__/
 .idea/
+.DS_Store
+apex
+ninja
+data
+client/hc_utils
