@@ -3,9 +3,7 @@ import os
 import sys
 import time
 import logging
-from os.path import abspath, dirname
-base_dir = dirname(abspath(__file__))
-sys.path.append(dirname(base_dir))
+sys.path.append('../')
 from fl_server import FL_Server
 
 if __name__ == '__main__':
@@ -27,7 +25,7 @@ if __name__ == '__main__':
         server.max_delay = 100
         current_time = time.time()
         while True:
-            sleep(10)
+            time.sleep(10)
             n_running = server.count_status(0)
             n_finish = server.count_status(1)
             logger.info("[epoch " + str(epoch_num) + "] n_running: " + str(n_running) + " , n_finish: " + str(n_finish))

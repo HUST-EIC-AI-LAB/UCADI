@@ -1,3 +1,4 @@
+
 import os
 import sys
 import json
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     with open('./config/train_config_client1.json') as j:
         train_config = json.load(j)
 
-	if train_config['use_cuda']:
+    if train_config['use_cuda']:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"] = str(train_config['gpu'])	
     device = 'cuda' if train_config['use_cuda'] else 'cpu'

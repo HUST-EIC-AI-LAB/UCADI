@@ -1,7 +1,7 @@
 import os
 import torch
-import torch.nn.functional as F
 from apex import amp
+import torch.nn.functional as F
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
