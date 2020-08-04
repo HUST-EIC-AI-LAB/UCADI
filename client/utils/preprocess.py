@@ -1,8 +1,8 @@
-
+# -*- coding: utf-8 -*-
 import os
 import argparse
-import numpy as np
-import nibabel as nib
+# import numpy as np
+# import nibabel as nib
 import SimpleITK as sitk
 from multiprocessing import Pool
 
@@ -83,4 +83,3 @@ if __name__ == "__main__":
     p.map(preprocess, data_lists)
     p.close()
     p.join()
-

@@ -1,19 +1,14 @@
 # PyTorch 1.6.0, CUDA 10.1, CUDNN 7
 
-# certifi==2020.4.5.1
-dropblock>=0.3.0
-future>=0.18.2
-nibabel==3.0.2
+six>=1.14.0
+pytz>=2019.3
 numpy>=1.17.0
 pandas>=1.0.3
 Pillow>=7.1.1
+future>=0.18.2
+nibabel==3.0.2
+dropblock>=0.3.0
+SimpleITK>=1.2.4
 protobuf>=3.11.3
-python-dateutil>=2.8.1
-pytz>=2019.3
-six>=1.14.0
 tensorboardX>=2.0
-SimpleITK
-# torch==1.5.0+cu101
-# torchvision==0.6.0+cu101
-# torch==1.5.0
-# torchvision==0.6.0
+python-dateutil>=2.8.1
