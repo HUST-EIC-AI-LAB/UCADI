@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import os
 import sys
 import json
@@ -9,11 +9,10 @@ import torch.nn as nn
 import torch.optim as optim
 
 from apex import amp
-sys.path.append('../')
-from client.fl_client import FL_Client
-from client.model.model import densenet3d
-from client.train import train, add_weight_decay
-from client.common import TrainDataset, DataLoader, WarmUpLR, Logger
+from fl_client import FL_Client
+from model.model import densenet3d
+from train import train, add_weight_decay
+from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 
 if __name__ == '__main__':

@@ -6,7 +6,6 @@
   "test_df_csv": "./utils/test_norm.csv",
   "labels_test_df_csv": "./utils/test_norm.csv",
   "use_cuda": true,
-  "gpu": 0,
   "epoch": 101,
   "train_batch_size": 4,
   "test_batch_size": 2,

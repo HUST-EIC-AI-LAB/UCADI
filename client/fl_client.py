@@ -4,9 +4,9 @@ import json
 import torch
 import logging
 from time import sleep
-from client.model.model import densenet3d
+from model.model import densenet3d
 from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-from client.encrypt_decrypt import generate_shape, encrypt, decrypt
+from encrypt_decrypt import generate_shape, encrypt, decrypt
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from common.tcp_utils import send_head_dir, recv_head_dir, recv_and_write_file, send_file
 

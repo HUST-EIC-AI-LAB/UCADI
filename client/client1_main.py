@@ -1,6 +1,5 @@
-
+# -*- coding: utf-8 -*-
 import os
-import sys
 import json
 import torch
 import logging
@@ -10,17 +9,17 @@ import torch.optim as optim
 
 from apex import amp
 from time import sleep
-sys.path.append('../')
-from client.fl_client import FL_Client
-from client.model.model import densenet3d
-from client.train import train, add_weight_decay
-from client.common import TrainDataset, DataLoader, WarmUpLR, Logger
+from fl_client import FL_Client
+from model.model import densenet3d
+from train import train, add_weight_decay
+from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
 
+    # FL_Client() already includes using GPU
     client = FL_Client('./config/client1_config.json')
     client.start()
     # client.register()
@@ -34,11 +33,12 @@ if __name__ == '__main__':
     with open('./config/train_config_client1.json') as j:
         train_config = json.load(j)
 
-    if train_config['use_cuda']:
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(train_config['gpu'])	
+    # if train_config['use_cuda']:
+    #     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    #     os.environ["CUDA_VISIBLE_DEVICES"] = str(train_config['gpu'])	
     device = 'cuda' if train_config['use_cuda'] else 'cpu'
     model = densenet3d().to(device)
+    pdb.set_trace()
     weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
 
     num_workers = train_config['num_workers']

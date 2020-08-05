@@ -139,7 +139,6 @@ For the Client, **pay attention** to its `FL_Client.train_model_path` attribute,
 >   "test_df_csv": "./utils/test_norm.csv",
 >   "labels_test_df_csv": "./utils/test_norm.csv",
 >   "use_cuda": true,
->   "gpu": 0,
 >   "epoch": 101,
 >   "train_batch_size": 4,
 >   "test_batch_size": 2,
@@ -162,7 +161,7 @@ Developers could run this command `git clone https://github.com/HUST-EIC-AI-LAB/
 Some dependencies may need to be pre-installed, e.g. PyTorch and CUDA, before you can train on GPU. Run `pip install -r requirement.txt` to install the required dependencies
 
 **Notice:**
-In `requirement.txt`, we use torch matches `cuda == 9.2`.
+In `requirement.txt`, we use `PyTorch` that matches `cuda == 9.2`.
 
 If there are problems in using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt` , and download the correct version of PyTorch from the official website.
 
@@ -178,7 +177,7 @@ Our encryption algorithm comes from https://github.com/lucifer2859/Paillier-LWE-
 
 
 
-**D:**
+**Docker:**
 
 we have also provide docker option, which supports `PyTorch 1.6.0` with `cuda 10.1`, where it automatically install the python dependencis in`requirements.txt` , `apx`, `ninja` and `re2c`. It is located in the `docker` folder.
 
@@ -219,10 +218,13 @@ After modifying the corresponding configuration, run separately:
 cd server && python server_main.py
 
 # start training model on client 1
-cd ../client && python client1_main.py
+cd client 
+CUDA_VISIBLE_DEVICES=4,5 python client1_main.py
 
 # start training another model on client 2
-python client2_main.py ......
+CUDA_VISIBLE_DEVICES=6,7 python client2_main.py
+
+# more clients can be added
 ```
 
 

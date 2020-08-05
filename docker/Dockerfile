@@ -16,7 +16,7 @@ RUN pip install -v --no-cache-dir ./
 WORKDIR /workspace/FL_COVID19
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /workspace/FL_COVID19/ninja
-./configure.py --bootstrap
+RUN ./configure.py --bootstrap
 
 RUN useradd hcw
 WORKDIR /workspace/FL_COVID19

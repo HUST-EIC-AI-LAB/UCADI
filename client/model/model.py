@@ -99,7 +99,7 @@ class DenseNet(nn.Module):
         input_channels = 1
         conv_channels = 32
         down_structure = [2, 2, 2]
-        output_channels = 4
+        output_channels = 4  # 2
         act_fn = config["act_fn"]
         norm_fn = config["norm_fn"]
         self.features = nn.Sequential()
