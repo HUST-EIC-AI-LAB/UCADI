@@ -1,7 +1,6 @@
-import logging
+# -*- coding: utf-8 -*-
 import time
-from time import sleep
-
+import logging
 from server.fl_server import FL_Server
 
 if __name__ == '__main__':
@@ -17,7 +16,7 @@ if __name__ == '__main__':
 
         current_time = time.time()
         while True:
-            sleep(10)
+            time.sleep(10)
             n_running = server.count_status(0)
             n_finish = server.count_status(1)
             logger.info("[epoch " + str(epoch_num) + "] n_running: " + str(n_running) + " , n_finish: " + str(n_finish))
@@ -32,7 +31,7 @@ if __name__ == '__main__':
             logger.info("Start aggregation")
 
             # ****
-            sleep(10)  # Use the sleep function to simulate the aggregation process
+            time.sleep(10)  # Use the sleep function to simulate the aggregation process
             # ****
 
             # client status reset to -1 after aggregation

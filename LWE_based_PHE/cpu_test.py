@@ -1,5 +1,6 @@
-import random
+# -*- coding: utf-8 -*-
 import time
+import random
 
 n_lwe = 3000
 s = 8
@@ -106,26 +107,27 @@ def Dec(S, c):
     return m
 
 
-st = time.time()
-pk, sk = KeyGen()
-print("KeyGen Time: %.6f s" % (time.time() - st))
+if __name__ == '__main__':
+    st = time.time()
+    pk, sk = KeyGen()
+    print("KeyGen Time: %.6f s" % (time.time() - st))
 
-m1 = []
-m2 = []
-for i in range(l):
-    m1.append(i*i)
-    m2.append(i)
+    m1 = []
+    m2 = []
+    for i in range(l):
+        m1.append(i*i)
+        m2.append(i)
 
-st = time.time()
-c1 = Enc(pk, m1)
-c2 = Enc(pk, m2)
-print("Encrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / (2 * l)))
+    st = time.time()
+    c1 = Enc(pk, m1)
+    c2 = Enc(pk, m2)
+    print("Encrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / (2 * l)))
 
-st = time.time()
-c = c1 + c2
-print("Add Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
+    st = time.time()
+    c = c1 + c2
+    print("Add Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
 
-st = time.time()
-m = Dec(sk, c)
-print("Decrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
-print(m)
+    st = time.time()
+    m = Dec(sk, c)
+    print("Decrypt Time: %.6f ms/op" % ((time.time() - st) * 1000 / l))
+    print(m)

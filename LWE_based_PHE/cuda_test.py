@@ -1,9 +1,7 @@
+# -*- coding: utf-8 -*-
+import os
 import torch
 import random
-import time
-import math
-import os
-
 from torch.utils.cpp_extension import load
 PATH_CPP = os.getcwd() + '/LWE_based_PHE/matrix_op/matrix_op_cuda.cpp'
 PATH_CU = os.getcwd() + '/LWE_based_PHE/matrix_op/matrix_op_cuda_kernel.cu'

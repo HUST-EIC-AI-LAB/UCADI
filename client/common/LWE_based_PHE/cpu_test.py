@@ -1,5 +1,6 @@
-import random
+# -*- coding: utf-8 -*-
 import time
+import random
 
 n_lwe = 3000
 s = 8

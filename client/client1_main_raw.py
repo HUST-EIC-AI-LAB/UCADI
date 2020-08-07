@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from time import sleep
 from client.fl_client import FL_Client

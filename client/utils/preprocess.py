@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import argparse
-# import numpy as np
-# import nibabel as nib
 import SimpleITK as sitk
 from multiprocessing import Pool
 

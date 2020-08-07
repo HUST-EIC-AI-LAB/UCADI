@@ -4,7 +4,7 @@ import copy
 import torch
 import collections
 from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-# from client.model.model import densenet3d
+
 
 def encrypt(public_key, model_weight):
     """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import torch
 # from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 
