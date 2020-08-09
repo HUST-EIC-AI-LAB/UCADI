@@ -1,29 +1,27 @@
-# COVID-19 Prediction With Federated Learning
+# COVID-19 Diagnosis With Federated Learning
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
 This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 Unported License</a>.
 
 
-
 ## 1. Introduction
 
-We developed a Federated Learning (FL) framework for international researchers to train the AI diagnosis model on remote machines. Please follow this user guide to effectively deploy the AI model empowered by Federated Learning at the hospital or other non-profit organizations.
+We developed a Federated Learning (FL) framework for international researchers to collaboratively train an AI diagnosis model on multiple servers/data centers without sharing the training data. Please follow this user guide for effective deployments at the hospital or other non-profit organizations.
 
-Similar to most C/S structures, this framework consists of two parts: Server side and Client side. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model gets trained locally, while the server part is established on the central machine (Server).
+Similar to most C/S structures, this framework consists of two parts: Server and Client. To apply this framework in real scenarios, taking hospitals for example, the client part could be deployed on the machines of the hospital side (Client) where the federated model is trained locally, while the server part is established on a central machine (Server).
 
 Once the scripts are executed, the hospitals will train their own models locally and transmit the model parameters to the server which aggregates all model parameters collected from the clients. Then the server distribute the newly aggregated model parameters to each client maintaining the FL process. This process is about to iterate for some pre-set rounds before the accuracy of the aggregated model reaches the desired performance.
 
 Besides the functionality described above, we equip our framework with additional features as following:
 
-1. Encrypted parameters: Every Client could encrypt their model parameters trained locally via their generated private key. The Server will just aggregate these parameters without the ability to decrypt them.
+1. Encrypted parameters: each client could encrypt the parameters of their local trained model parameters via their generated private key, the server will just aggregate these parameters without the ability to decrypt them;
 
-2. Weighted aggregation: We also add weighted aggregation method in this framework, researchers could assign different weights to each client for the aggregation.
-
+2. Weighted aggregation: researchers can assign different aggregation weights to each client.
 
 
 ### 1.1 Communication settings
 
-For the need of Encryption and Weighted Aggregation, it is not sufficient that Server and Clients only communicate the model parameters between them.
+For the need of encryption and weighted aggregation, it is not sufficient that server and clients only communicate the model parameters between them.
 
 We define the file content format for this framework as follows:
 

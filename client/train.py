@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
 import torch
 from apex import amp
 import torch.nn.functional as F
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
-
-## no bias decay
 def add_weight_decay(net, l2_value, skip_list=()):
     decay, no_decay = [], []
     for name, param in net.named_parameters():
@@ -18,7 +14,8 @@ def add_weight_decay(net, l2_value, skip_list=()):
         else:
             decay.append(param)
     print('add no bias decay')
-    return [{'params': no_decay, 'weight_decay': 0.}, {'params': decay, 'weight_decay': l2_value}]
+    return [{'params': no_decay, 'weight_decay': 0.},
+            {'params': decay, 'weight_decay': l2_value}]
 
 
 def train(filename, device, train_data_loader, model, optimizer, log,
@@ -33,9 +30,8 @@ def train(filename, device, train_data_loader, model, optimizer, log,
     #     param_group['lr'] = lr
     # for train
     if epoch == 1:
-        lr = 0.00001
         for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
+            param_group['lr'] = 1e-5
 
     running_loss = 0.0
     model.train()

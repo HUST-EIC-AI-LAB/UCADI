@@ -5,7 +5,7 @@ import torch
 import logging
 import threading
 from time import sleep
-from server.aggregation import aggregateWeight, getWeightList
+from aggregation import aggregateWeight, getWeightList
 from socket import socket, SOL_SOCKET, SO_REUSEADDR, AF_INET, SOCK_STREAM
 from common.tcp_utils import send_head_dir, send_file, recv_head_dir, recv_and_write_file
 

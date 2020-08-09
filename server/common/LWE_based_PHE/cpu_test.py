@@ -107,7 +107,7 @@ def Dec(S, c):
     return m
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     st = time.time()
     pk, sk = KeyGen()
     print("KeyGen Time: %.6f s" % (time.time() - st))

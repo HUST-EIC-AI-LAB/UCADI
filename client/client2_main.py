@@ -24,66 +24,53 @@ if __name__ == '__main__':
     client.start()
     client.register()
 
-    # *********************** train part-1 begin *******************************
-    print('training')
-    # initialize train params
-
+    # *********************** initialize train params *******************************
     with open('./config/train_config_client2.json') as j:
         train_config = json.load(j)
 
-    device = 'cuda' if train_config['use_cuda'] else 'cpu'
-    model = densenet3d().to(device)
-    weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
-
-    num_workers = train_config['num_workers']
+    # set up the training dataloader
     train_data_train = TrainDataset(train_config['train_data_dir'],
                                     train_config['train_df_csv'],
                                     train_config['labels_train_df_csv'])
-    train_batch_size = train_config['train_batch_size']
     train_data_loader = DataLoader(dataset=train_data_train,
-                                   batch_size=train_batch_size,
+                                   batch_size=train_config['train_batch_size'],
                                    shuffle=True,
-                                   num_workers=num_workers)
-    criterion = nn.CrossEntropyLoss(weight=weight).to(device)
-    ## initial lr
-    lr_rate = train_config['lr']
-    num_epochs = train_config['epoch']
-    # lr_rate = config['lr']
-    momentum = train_config['momentum']
-    # num_epochs = config['epoch']
+                                   num_workers=train_config['num_workers'])
 
-    ## add no bias decay
+    # set up the model
+    device = 'cuda' if train_config['use_cuda'] else 'cpu'
+    model = densenet3d().to(device)
+    weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
+    criterion = nn.CrossEntropyLoss(weight=weight).to(device)
+
+    # add no bias decay
     params = add_weight_decay(model, 4e-5)
-    optimizer = optim.SGD(params, lr=lr_rate, momentum=momentum)
+    optimizer = optim.SGD(params, lr=train_config['lr'], momentum=train_config['momentum'])
     model, optimizer = amp.initialize(model, optimizer)
     model = nn.DataParallel(model)
-    iter_per_epoch = len(train_data_loader)
-    warm_epoch = 5
+    iter_per_epoch, warm_epoch = len(train_data_loader), 5
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
-    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs - warm_epoch)
+    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)
 
+    # set up the log file
     logfile = "./train_valid_client2.log"
-    if os.path.exists(logfile):
-        os.remove(logfile)
+    os.remove(logfile) if os.path.exists(logfile) else None
     sys.stdout = Logger(logfile)
     log = logging.getLogger()
-    # *********************** train part-1 end *******************************
 
+    # *********************** training start *******************************
     for epoch_num in range(client.configs['iteration']):
         logger.info('***** current epoch is {} *****'.format(epoch_num))
-        # recv_filePath = client.recv_model()
         recv_filePath = client.train_model_path
         print(recv_filePath)
 
         # unpack the .pth file, and decrypt model_state & weight num
         _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=recv_filePath)
-        ## decryption
         dec_model_state = client.decrypt(_model_state, _client_num)
-        # dec_weight_num = client.dec_num(_weight_sum)
         dec_weight_num = _weight_sum  # not encrypted
 
         print("weight num calculated from server:{}".format(1.0 / dec_weight_num))
-        print("some of decrypted state:")
+        print("some of decrypted parameters:")
         temp_key = list(dec_model_state.keys())[0]
         print(dec_model_state[temp_key][0]) 
         # assign weighted state to the model
@@ -96,14 +83,14 @@ if __name__ == '__main__':
         # *********************** train part-2 begin *******************************
         # load the state dict of new model
         model.load_state_dict(dec_model_state)
-        fileName = 'model_state_{}.pth'.format(client.configs['username'])
+        fileName = 'model_Param_{}.pth'.format(client.configs['username'])
         update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
                             model=model, optimizer=optimizer, log=log, warm_epoch=warm_epoch,
                             epoch=1, criterion=criterion, warmup_scheduler=warmup_scheduler,
                             train_scheduler=train_scheduler, save_interval=5, save_folder='./model/')
         # *********************** train part-2 end *******************************
 
-        ## encryption, then send
+        # encryption, then send
         trained_model_state_dict = torch.load(update_name)
         print("After training, some state")
         print(trained_model_state_dict[temp_key][0])
@@ -122,9 +109,6 @@ if __name__ == '__main__':
         savePath = os.path.join(client.configs["models_dir"],
                                 './model_Param_{}.pth'.format(client.configs['username'],))
         torch.save(_model_Param, savePath)
-        print("encrypted param[0]", enc_model_state[0])
-        # send the model
-        # eg: model_Param_Alan_v0.pth
         client.send_model(model_weight_path=savePath, versionNum=epoch_num+1)
 
     logger.info("training finished")

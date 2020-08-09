@@ -3,7 +3,7 @@ import os
 import copy
 import torch
 import collections
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+from common.LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 
 
 def encrypt(public_key, model_weight):

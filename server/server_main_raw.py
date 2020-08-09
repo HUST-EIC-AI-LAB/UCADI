@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 import logging
-from server.fl_server import FL_Server
+from fl_server import FL_Server
 
 if __name__ == '__main__':
 

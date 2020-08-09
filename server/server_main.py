@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import time
 import logging
-sys.path.append('../')
 from fl_server import FL_Server
 
 if __name__ == '__main__':

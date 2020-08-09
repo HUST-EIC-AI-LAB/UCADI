@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import torch
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec 
+from common.LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 
 if __name__ == "__main__":
     # fileName = './server_data_four/weight_v1.pth'
