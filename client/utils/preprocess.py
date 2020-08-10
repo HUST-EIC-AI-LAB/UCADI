@@ -21,21 +21,22 @@ def read_dicom(path):
 
 
 def read_image(path):
+    """Load DICOM Images as Numpy Array"""
     reader = read_dicom(path)   
     image = reader.Execute()
-    # z, y, x
-    image_array = sitk.GetArrayFromImage(image)
+    image_array = sitk.GetArrayFromImage(image)  # z, y, x
     return image_array
 
 
 def preprocess(data_list):
+    """Convert DICOM Images to NIFTI Images"""
     save_root = "/mnt/data/zxy/dataset/"
     image_name, image_path = data_list
     try:
         image = read_image(image_path)
         z, y, x = image.shape
         if z > 15 and y == 512 and x == 512:
-            print("z {}, y {}, z {}".format(z, y, x))
+            print("z {}, y {}, x {}".format(z, y, x))
             write_image(image, save_root + "{}.nii.gz".format(str(image_name)))
             print("{} finished".format(image_name))
     except:
@@ -44,7 +45,8 @@ def preprocess(data_list):
         print("{} failed".format(image_name) + "\n")
 
     
-def gen_path(data_dir):   
+def gen_path(data_dir):
+    """Generate File Lists of DICOM Images Stores at Various Locations"""
     image_list = []
     len_thresh = len(data_dir.split("/")) + 4
     for root, dirs, files in os.walk(data_dir):
@@ -61,12 +63,11 @@ def gen_path(data_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='ncp')
-    parser.add_argument('--input', default='/mnt/data/zxy/ct_data/', type=str, metavar='SAVE',
-                        help='directory to save dicom data (default: none)')
-    parser.add_argument('--output', default='/mnt/data/zxy/dataset/', type=str, metavar='SAVE',
-                        help='directory to save nii.gz data (default: none)')
-    
-    # global args
+    # /mnt/data/zxy/ct_data/
+    parser.add_argument('--input', type=str, metavar='SAVE', help='directory to save dicom data (default: none)')
+    # /mnt/data/zxy/dataset/
+    parser.add_argument('--output', type=str, metavar='SAVE', help='directory to save nii.gz data (default: none)')
+
     args = parser.parse_args()
     save_root = args.output
     if not os.path.exists(save_root):

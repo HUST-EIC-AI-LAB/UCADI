@@ -28,7 +28,6 @@ def train(filename, device, train_data_loader, model, optimizer, log,
     # lr = get_lr(epoch)
     # for param_group in optimizer.param_groups:
     #     param_group['lr'] = lr
-    # for train
     if epoch == 1:
         for param_group in optimizer.param_groups:
             param_group['lr'] = 1e-5
@@ -39,25 +38,21 @@ def train(filename, device, train_data_loader, model, optimizer, log,
     # training process
     for index, (inputs, labels, patient_name) in enumerate(train_data_loader):
 
-        lr = optimizer.param_groups[0]['lr']
+        # lr = optimizer.param_groups[0]['lr']
         optimizer.zero_grad()
 
-        inputs, labels = inputs.to(device), labels.to(device)  # to(device), labels.to(device)
-        for label in labels:
+        inputs, labels = inputs.to(device), labels.to(device)
+        for idx, label in enumerate(labels):
             if label.size() == torch.Size([2]):  # == torch.tensor([[1, 1]]):
-                label = label[0]
+                labels[idx] = label[0]
                 print(patient_name)
-        # forward
+
         inputs = inputs.unsqueeze(dim=1).float()
         inputs = F.interpolate(inputs, size=[16, 128, 128], mode="trilinear", align_corners=False)
-        # print(inputs.shape,labels.shape)
-        outputs = model(inputs)
 
-        # backward
+        outputs = model(inputs)
         loss = criterion(outputs, labels)
-        # loss.backward()
-        # optimize
-        ## add apex
+        # add apex instead of "loss.backward()"
         with amp.scale_loss(loss, optimizer) as scaled_loss:
             scaled_loss.backward()
 
@@ -66,7 +61,7 @@ def train(filename, device, train_data_loader, model, optimizer, log,
             train_scheduler.step(epoch)
         if epoch <= warm_epoch:
             warmup_scheduler.step()
-        # loss update
+
         running_loss += loss.item()
 
         print("{} epoch, {} iter, loss {}".format(epoch, index + 1, loss.item()))

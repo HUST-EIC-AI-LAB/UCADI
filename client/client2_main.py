@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import pdb
 import json
 import torch
 import logging
@@ -28,7 +29,6 @@ if __name__ == '__main__':
     with open('./config/train_config_client2.json') as j:
         train_config = json.load(j)
 
-    # set up the training dataloader
     train_data_train = TrainDataset(train_config['train_data_dir'],
                                     train_config['train_df_csv'],
                                     train_config['labels_train_df_csv'])
