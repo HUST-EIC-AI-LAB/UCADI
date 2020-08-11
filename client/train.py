@@ -8,6 +8,7 @@ import logging
 import numpy as np
 from apex import amp
 import torch.nn as nn
+sys.path.append('common')
 import torch.optim as optim
 import torch.nn.functional as F
 from model.model import densenet3d
