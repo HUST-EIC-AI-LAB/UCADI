@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import pdb
 import json
 import torch
 import logging
@@ -51,6 +52,7 @@ class FL_Client(object):
         self.logger.info("register with server ...")
         send_socket = socket(AF_INET, SOCK_STREAM)
         try:
+            # pdb.set_trace()
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
@@ -66,7 +68,7 @@ class FL_Client(object):
                 recv_and_write_file(conn=send_socket,
                                     file_dir='/'.join(self.model_path.split("/")[:-1]) + "/",
                                     buff_size=self.configs["buff_size"])
-                self.logger.info("successfully registered！")
+                self.logger.info("successfully registered!")
             else:
                 self.stop()
         finally:

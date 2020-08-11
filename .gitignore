@@ -4,8 +4,9 @@ __pycache__/
 apex
 ninja
 data
-back_up
 client/hc_utils
 client/key
 cam_dev
-
+client/*.pth
+client/*/*.pth
+server/model/merge_model/*.pth

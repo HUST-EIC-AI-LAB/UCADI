@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pdb
 import torch
 from apex import amp
 import torch.nn.functional as F
@@ -50,6 +51,7 @@ def train(filename, device, train_data_loader, model, optimizer, log,
         inputs = inputs.unsqueeze(dim=1).float()
         inputs = F.interpolate(inputs, size=[16, 128, 128], mode="trilinear", align_corners=False)
 
+        pdb.set_trace()
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         # add apex instead of "loss.backward()"

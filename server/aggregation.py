@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import pdb
 import torch
 
 # for loading the encrypted file, import this.
@@ -26,6 +27,8 @@ def getWeightList(weights_store_directory, map_loc=torch.device('cuda')):
     weightDictList = []
     final_weight_sum = 0
     for file in fileList:
+        if '.pth' not in file:
+            continue
         file_path = os.path.join(weights_store_directory, file)
         _model_param = torch.load(file_path, map_location=map_loc)
         final_weight_sum += _model_param['client_weight']

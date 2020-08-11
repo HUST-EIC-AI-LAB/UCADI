@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import pdb
 import json
 import torch
 import logging
@@ -155,7 +156,7 @@ class FL_Server(object):
         :return: aggregated model state_dict
         """
         print("*** aggregation begin ***")
-
+        # pdb.set_trace()
         weight_dict_list, weight_sum, client_num = getWeightList(weights_store_directory=client_models_dir,
                                                                  map_loc=self.map_loc)
 

@@ -40,7 +40,6 @@ def preprocess(data_list):
             write_image(image, save_root + "{}.nii.gz".format(str(image_name)))
             print("{} finished".format(image_name))
     except:
-        # which means the images has wrong size
         with open("failed_pre_norm.txt", "a") as f:
             f.write(image_name + "\n")
         print("{} failed".format(image_name) + "\n")
