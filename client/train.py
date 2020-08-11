@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
 import pdb
+import json
 import torch
+import logging
+import numpy as np
 from apex import amp
+import torch.nn as nn
+import torch.optim as optim
 import torch.nn.functional as F
-
+from model.model import densenet3d
+from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 def add_weight_decay(net, l2_value, skip_list=()):
     decay, no_decay = [], []
@@ -82,49 +90,49 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 
 
 if __name__ == "__main__":
-    pass
-#  #hostname = socket.gethostname()
-#  #ip = socket.gethostbyname(hostname)
-#  client_json_path = './config/config_client.json'
-#
-#  with open('./config/config_client.json') as f:
-#      config_client = json.load(f)
-#  with open('./config/config.json') as f:
-#  	config = json.load(f)
-#
-#  epoch = 0
-#
-#  # Homomophric encryot setting
-#  prec = 32
-#  bound = 2 ** 3
-#
-#  with open('./config/config.json') as f:
-#           config = json.load(f)
-#  device = 'cuda' if config['use_cuda'] else 'cpu'
-#  model = densenet3d().to(device)
-#  weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
-#
-#  num_workers = config['num_workers']
-#  train_data_train = TrainDataset(config['train_data_dir'],
-#                                  config['train_df_csv'],
-#                                  config['labels_train_df_csv'])
-#  train_batch_size = config['train_batch_size']
-#  train_data_loader = DataLoader(dataset = train_data_train,
-#  batch_size = train_batch_size, shuffle = True, num_workers = num_workers)
-#
-#  criterion = nn.CrossEntropyLoss(weight=weight).to(device)
-#  ## initial lr
-#  lr_rate = config['lr']
-#  num_epochs = config['epoch']
-#  #lr_rate = config['lr']
-#  momentum = config['momentum']
-#  #num_epochs = config['epoch']
-#  ## add no bias decay
-#  params = add_weight_decay(model, 4e-5)
-#  optimizer = optim.SGD(params, lr=lr_rate, momentum=momentum)
-#  model, optimizer=amp.initialize(model, optimizer)
-#  model = nn.DataParallel(model)
-#  client = FL_Client(client_json_path = client_json_path, model=model)
+    # pass
+
+    # with open('./config/train_config_client1.json') as j:
+    with open('./config/train_config_client1_hc.json') as j:
+        train_config = json.load(j)
+
+    train_data_train = TrainDataset(train_config['train_data_dir'],
+                                    train_config['train_df_csv'],
+                                    train_config['labels_train_df_csv'])
+    train_data_loader = DataLoader(dataset=train_data_train,
+                                   batch_size=train_config['train_batch_size'],
+                                   shuffle=True,
+                                   num_workers=train_config['num_workers'])
+
+    device = 'cuda' if train_config['use_cuda'] else 'cpu'
+    model = densenet3d().to(device)
+    weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
+    criterion = nn.CrossEntropyLoss(weight=weight).to(device)
+
+    model = densenet3d().to(device)
+    weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
+    params = add_weight_decay(model, 4e-5)
+    optimizer = optim.SGD(params, lr=train_config['lr'], momentum=train_config['momentum'])
+    model, optimizer = amp.initialize(model, optimizer)
+    model = nn.DataParallel(model)
+    iter_per_epoch, warm_epoch = len(train_data_loader), 5
+    warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
+    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)
+
+    logfile = "./train_valid_client1.log"
+    os.remove(logfile) if os.path.exists(logfile) else None
+    sys.stdout = Logger(logfile)
+    log = logging.getLogger()
+
+    for epoch_num in range(train_config['epoch']):
+
+        fileName = 'central_model.pth'
+        update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
+                        model=model, optimizer=optimizer, log=log, warm_epoch=warm_epoch,
+                        epoch=epoch_num, criterion=criterion, warmup_scheduler=warmup_scheduler,
+                        train_scheduler=train_scheduler, save_interval=5, save_folder='./model/')
+
+
 #
 #  #model_parameters = model.state_dict()
 #  #model_parameters_dict = collections.OrderedDict()
