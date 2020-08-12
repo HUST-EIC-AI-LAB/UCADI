@@ -25,7 +25,7 @@ if __name__ == '__main__':
     client.start()
     client.register()
 
-    # *********************** initialize train params *******************************
+    ''' === set up training configs and data loader === '''
     with open('./config/train_config_client2.json') as j:
         train_config = json.load(j)
 
@@ -61,19 +61,16 @@ if __name__ == '__main__':
     # *********************** training start *******************************
     for epoch_num in range(client.configs['iteration']):
         logger.info('***** current epoch is {} *****'.format(epoch_num))
-        recv_filePath = client.train_model_path
-        print(recv_filePath)
 
         # unpack the .pth file, and decrypt model_state & weight num
-        _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=recv_filePath)
+        _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
         dec_model_state = client.decrypt(_model_state, _client_num)
-        dec_weight_num = _weight_sum  # not encrypted
+        dec_weight_num = _weight_sum
 
         print("weight num calculated from server:{}".format(1.0 / dec_weight_num))
         print("some of decrypted parameters:")
         temp_key = list(dec_model_state.keys())[0]
         print(dec_model_state[temp_key][0]) 
-        # assign weighted state to the model
         client.set_weight(1.0)
         for key in dec_model_state.keys():
             dec_model_state[key] = dec_model_state[key] * (float(_client_num) / dec_weight_num)
@@ -88,7 +85,6 @@ if __name__ == '__main__':
                             model=model, optimizer=optimizer, log=log, warm_epoch=warm_epoch,
                             epoch=1, criterion=criterion, warmup_scheduler=warmup_scheduler,
                             train_scheduler=train_scheduler, save_interval=5, save_folder='./model/')
-        # *********************** train part-2 end *******************************
 
         # encryption, then send
         trained_model_state_dict = torch.load(update_name)
@@ -102,7 +98,6 @@ if __name__ == '__main__':
         enc_model_state = client.encrypt(trained_model_state_dict)
         dec_model_again = client.decrypt(enc_model_state, 1)
         print("some test decrypted state:", dec_model_again[temp_key][0])
-        # client.set_weight(1.0)
         # enc_client_weight = client.enc_num(client.weight)
         _model_Param = {"model_state_dict": enc_model_state,
                         "client_weight": client.weight}

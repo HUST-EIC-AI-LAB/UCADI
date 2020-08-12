@@ -11,6 +11,7 @@ import torch.optim as optim
 
 from apex import amp
 from time import sleep
+sys.path.append('common')
 from fl_client import FL_Client
 from model.model import densenet3d
 from train import train, add_weight_decay
@@ -28,7 +29,8 @@ if __name__ == '__main__':
     client.register()
 
     ''' === set up training configs and load the model before querying from the server === '''
-    with open('./config/train_config_client1.json') as j:
+    # with open('./config/train_config_client1.json') as j:
+    with open('./config/train_config_client1_hc.json') as j:
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
@@ -39,12 +41,13 @@ if __name__ == '__main__':
                                    shuffle=True,
                                    num_workers=train_config['num_workers'])
 
+    # set up the model
     device = 'cuda' if train_config['use_cuda'] else 'cpu'
     model = densenet3d().to(device)
     weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
     criterion = nn.CrossEntropyLoss(weight=weight).to(device)
 
-    # add no bias decay -> Why we need this setting?
+    # add no bias decay
     params = add_weight_decay(model, 4e-5)
     optimizer = optim.SGD(params, lr=train_config['lr'], momentum=train_config['momentum'])
     model, optimizer = amp.initialize(model, optimizer)
@@ -71,11 +74,12 @@ if __name__ == '__main__':
             continue
         elif request_model_result == "error":
             break
-    recv_filePath = client.train_model_path
 
     # what if receiving is not successful??
-    _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=recv_filePath)
-    client.set_weight(1.0)  # aggregation weight at the server side
+    _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
+
+    # aggregation weight at the server side, based on how many training data the client have
+    client.set_weight(iter_per_epoch)
     _model_Param = {"model_state_dict": _model_state,
                     "client_weight": client.weight}
     savePath = os.path.join(client.configs["models_dir"],
@@ -83,7 +87,7 @@ if __name__ == '__main__':
     torch.save(_model_Param, savePath)
     client.send_model(model_weight_path=savePath, versionNum=0)
 
-    pdb.set_trace()
+    # pdb.set_trace()
     ''' === formally start training ==='''
     logger.info("******\ntraining begin\n******")
     for epoch_num in range(client.configs['iteration']):
@@ -99,24 +103,21 @@ if __name__ == '__main__':
                 continue
             elif request_model_result == "error":
                 break
-        # which means if the client is not receiving the model it will skip this epoch ???
         if not request_model_finish:
             continue
 
+        # unpack the package, and decrypt model parameters and aggregation weights
         logger.info('***** current epoch is {} *****'.format(epoch_num))
-        recv_filePath = client.train_model_path
-
-        # unpack the file, and decrypt model_state & weight num
-        _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=recv_filePath)
+        _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
+        pdb.set_trace()
         dec_model_state = client.decrypt(_model_state, _client_num)
-        dec_weight_num = _weight_sum  # not encrypted
 
-        print("weight num calculated from server:{}".format(1.0 / dec_weight_num))
+        logger.info("weight num calculated from server:{}".format(iter_per_epoch / _weight_sum))
         print("some of decrypted parameters:")
         temp_key = list(dec_model_state.keys())[0]
         print(dec_model_state[temp_key][0])
-        print("{} weight is {}".format(client.configs['username'], client.weight))
-        print("weight sum is {}\t client num is {}".format(_weight_sum, _client_num))
+        logger.info("{} weight is {}".format(client.configs['username'], client.weight))
+        logger.info("weight sum is {}\t client num is {}".format(_weight_sum, _client_num))
 
         for key in dec_model_state.keys():
             if epoch_num == 0:
@@ -127,7 +128,6 @@ if __name__ == '__main__':
         print("After Decryption\n", dec_model_state[temp_key][0])
 
         pdb.set_trace()
-        # load the state dict of new model
         model.load_state_dict(dec_model_state)
         fileName = 'model_state_{}.pth'.format(client.configs['username'])
         update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
@@ -140,10 +140,11 @@ if __name__ == '__main__':
         print("After training, some updated model parameters: ")
         print(trained_model_state_dict[temp_key][0])
         print("*****************************\n*****************************\n")
-        print("client weight {}\n".format(client.weight))
+        logger.info("client weight {}\n".format(client.weight))
         for key in trained_model_state_dict.keys():
             trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight / _weight_sum
 
+        pdb.set_trace()
         enc_model_state = client.encrypt(trained_model_state_dict)
         dec_model_again = client.decrypt(enc_model_state, 1)
         print("some test decrypted state:", dec_model_again[temp_key][0])
