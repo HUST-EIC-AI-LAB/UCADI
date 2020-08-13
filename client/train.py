@@ -34,23 +34,16 @@ def add_weight_decay(net, l2_value, skip_list=()):
 def train(filename, device, train_data_loader, model, optimizer, log,
           warm_epoch, epoch, criterion, warmup_scheduler, train_scheduler,
           save_interval=5, save_folder="./model/"):
-    train_num = len(train_data_loader)
-
-    if epoch == 1:
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = 1e-5
-
-    running_loss = 0.0
+    train_num, running_loss = len(train_data_loader), 0.
     model.train()
 
-    # training process
     for index, (inputs, labels, patient_name) in enumerate(train_data_loader):
 
         optimizer.zero_grad()
         inputs, labels = inputs.to(device), labels.to(device)
         
         for idx, label in enumerate(labels):
-            if label.size() == torch.Size([2]):  # == torch.tensor([[1, 1]]):
+            if label.size() == torch.Size([2]):
                 labels[idx] = label[0]
                 print(patient_name)
 
@@ -59,21 +52,17 @@ def train(filename, device, train_data_loader, model, optimizer, log,
                                mode="trilinear", align_corners=False)
         outputs = model(inputs)
         loss = criterion(outputs, labels)
-
         # add apex for "loss.backward()"
         with amp.scale_loss(loss, optimizer) as scaled_loss:
             scaled_loss.backward()
-
         optimizer.step()
         train_scheduler.step(epoch) if epoch > warm_epoch else warmup_scheduler.step()
-
         running_loss += loss.item()
         print("{} epoch, {} iter, loss {}".format(epoch, index + 1, loss.item()))
-    log.info("{} epoch, Average loss {}".format(epoch, running_loss / train_num))
 
-    # save checkpoint
-    saved_path = save_folder + str(epoch) + '_' + filename
+    log.info("{} epoch, Average loss {}".format(epoch, running_loss / train_num))
     log.info("save model parameters for {} epoch".format(epoch))
+    saved_path = save_folder + str(epoch) + '_' + filename
     torch.save(model.state_dict(), saved_path)
 
     return saved_path
