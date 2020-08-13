@@ -39,13 +39,13 @@ class FL_Server(object):
         # self.send_ip_port = (self.configs["ip"], self.configs["send_port"])
         # self.recv_socket = socket(AF_INET, SOCK_STREAM)
 
-        self.clients_ip_port = []  # 注册时写入
-        self.n_clients = 0  # 注册时写入
+        self.clients_ip_port, self.n_clients = [], 0
 
         # some configurations about models
         self.map_loc = torch.device('cuda')
         self.model_path = self.configs['weight_path']
         self.client_weight_dir = self.configs['client_weight_dir']
+        os.makedirs(self.client_weight_dir, exist_ok=True)
 
     def set_map_loc(self, device):
         if device not in ['cuda', 'cpu']:

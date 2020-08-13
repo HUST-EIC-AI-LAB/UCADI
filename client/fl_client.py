@@ -37,13 +37,14 @@ class FL_Client(object):
         self.register()
 
     def stop(self):
-        self.logger.info("training finished,  client quiting...")
+        self.logger.info("training finished, client quiting...")
         exit()
 
     def register(self):
         send_socket = socket(AF_INET, SOCK_STREAM)
         self.logger.info("registering with server ...")
         try:
+            pdb.set_trace()
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
@@ -66,14 +67,15 @@ class FL_Client(object):
             sleep(5)
 
     def request_model(self):
-        self.logger.info("Request server sending model...")
+        self.logger.info("requesting server to send model...")
         send_socket = socket(AF_INET, SOCK_STREAM)
         try:
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
 
-            head_dir = json.dumps({'username': self.configs['username'], 'msg': "request_model"})
+            head_dir = json.dumps({'username': self.configs['username'],
+                                   'msg': "request_model"})
             send_head_dir(conn=send_socket, head_dir=head_dir)
             recv_dir = recv_head_dir(conn=send_socket)
 
@@ -115,7 +117,8 @@ class FL_Client(object):
                 self.logger.info("sending model to server...")
                 send_path = self.weight_path if weight_path is None else weight_path
                 send_file(conn=send_socket, file_path=send_path,
-                          new_file_name="model_Param_{}_v_{}.pth".format(self.configs["username"], versionNum))
+                          new_file_name="model_Param_{}_v_{}.pth".format(
+                              self.configs["username"], versionNum))
                 self.logger.info("successfully sent the model to the server!")
                 return "ok"
             else:
@@ -144,7 +147,7 @@ class FL_Client(object):
     def dec_num(self, num):
         return Dec(self.sk, num)
 
-    def _encrypt(self, model_weight): # to avoid the same function name
+    def _encrypt(self, model_weight):  # to avoid the same function name
         return encrypt(self.pk, model_weight)
 
     def _decrypt(self, encrypted_model_weight, client_num):
