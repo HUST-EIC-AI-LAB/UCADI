@@ -2,7 +2,6 @@
 """aggregate all the encrypted weights in the weights directory"""
 import os
 import sys
-import pdb
 import torch
 sys.path.append('common')
 # for loading the encrypted file, import the following:
@@ -35,9 +34,9 @@ def aggregateWeight(weightDictList, weightList):
     new_dict, weight_sum = [], sum(weightList)
 
     for index in range(len(weightDictList[0])):
-        ini_tensor = weightDictList[0][index] # * weightList[0] / weight_sum
+        ini_tensor = weightDictList[0][index]  # * weightList[0] / weight_sum
         for i in range(1, len(weightDictList)):
-            ini_tensor += weightDictList[i][index] # * weightList[i] / weight_sum
+            ini_tensor += weightDictList[i][index]  # * weightList[i] / weight_sum
         new_dict.append(ini_tensor)
 
     return new_dict
@@ -51,8 +50,7 @@ def weightSave(weights_direc, savePath, map_loc=torch.device('cuda')):
 
 if __name__ == '__main__':
 
-    weights_store_directory = './model/merge_model' # './model/client_model/'
+    weights_store_directory = './model/merge_model'  # './model/client_model/'
     weightDictList, weightList, client_num = getWeightList(weights_store_directory)
     aggre = aggregateWeight(weightDictList, weightList)
     torch.save(aggre, './model/initial.pth')
-

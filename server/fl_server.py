@@ -24,28 +24,21 @@ class FL_Server(object):
 
         self.ip_port = (self.configs["ip"], self.configs["recv_port"])
         self.recv_socket = socket(AF_INET, SOCK_STREAM)
-
         self.clients_status = {}
         self.lock = threading.Lock()
-        self.finish = False
-        self.max_delay = 10000
-
-        # -1 means no training (no model); 0 means training in process;
-        # 1 means training completed (new model has been sent)
-        for client in self.all_clients:
-            self.clients_status[client] = -1
-
-        # self.recv_ip_port = (self.configs["ip"], self.configs["recv_port"])
-        # self.send_ip_port = (self.configs["ip"], self.configs["send_port"])
-        # self.recv_socket = socket(AF_INET, SOCK_STREAM)
-
+        self.finish, self.max_delay = False, 10000
         self.clients_ip_port, self.n_clients = [], 0
-
-        # some configurations about models
         self.map_loc = torch.device('cuda')
         self.model_path = self.configs['weight_path']
+        self.merge_weight_dir = self.configs['merge_model_dir']
         self.client_weight_dir = self.configs['client_weight_dir']
+        os.makedirs(self.merge_weight_dir, exist_ok=True)
         os.makedirs(self.client_weight_dir, exist_ok=True)
+        # -1: no active training process;
+        # 0: training in process;
+        # 1: training completed;
+        for client in self.all_clients:
+            self.clients_status[client] = -1
 
     def set_map_loc(self, device):
         if device not in ['cuda', 'cpu']:
@@ -92,7 +85,6 @@ class FL_Server(object):
         self.finish = True
         sleep(15)
         exit()
-        # self.recv_socket.close()
 
     def register(self, conn, head_dir):
 
@@ -101,9 +93,10 @@ class FL_Server(object):
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
         else:
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
-            self.logger.info(username + " successfully registered! Wait a bit more for other clients to join.")
+            self.logger.info(username + " successfully registered!")
+            self.logger.info("Wait a bit longer for other clients to join.")
             send_file(conn=conn, file_path=self.configs["model_path"], new_file_name=None)
-            sleep(30)
+            sleep(20)
 
     def send_model(self, conn, head_dir, _model_path=None):
         username = head_dir["username"]
@@ -143,34 +136,30 @@ class FL_Server(object):
 
     def aggregation(self, client_models_dir='./model/client_model/',):
         """
-        weighted aggregation
+        simple summation aggregation over weighted parameters from clients
         :param client_models_dir: store the model_weight & model_state_dict
-        :return: aggregated model state_dict
+        :return: aggregated model state_dict (in list)
         """
         print("*** aggregation begin ***")
-        weight_dict_list, weight_sum, client_num = getWeightList(
-            weights_store_directory=client_models_dir, map_loc=self.map_loc)
-        new_parm = aggregateWeight(weightDictList=weight_dict_list)
-        return new_parm, weight_sum, client_num
+        weightDictList, weightList, client_num = getWeightList(client_models_dir, self.map_loc)
+        new_parm = aggregateWeight(weightDictList, weightList)
+        return new_parm, sum(weightList), client_num
 
     def pack_param(self, _model_state, _client_weight, _client_num,  save_path=None):
         ob = {"model_state_dict": _model_state,
               "client_weight": _client_weight,
               "client_num": _client_num}
-        torch.save(ob, save_path) if save_path is not None else torch.save(ob, self.configs["weight_path"])
+        torch.save(ob, save_path) if save_path is not None else torch.save(ob, self.model_path)
 
     @staticmethod
     def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
-        state, client_weight = ob['model_state_dict'], ob['client_weight']
-        return state, client_weight
+        return ob['model_state_dict'], ob['client_weight']
 
     @staticmethod
     def flush_client_weight_dir(client_models_dir='./model/client_model/'):
         """Clean up all files within the client_model_dir"""
         file_list = os.listdir(client_models_dir)
         for i in range(len(file_list)):
-            filePath = os.path.join(client_models_dir, file_list[i])
-            os.remove(filePath)
+            os.remove(os.path.join(client_models_dir, file_list[i]))
         print("all clients .pth caches removed")
-

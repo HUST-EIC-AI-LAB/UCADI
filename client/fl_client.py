@@ -29,8 +29,7 @@ class FL_Client(object):
             model_weight = self.model.state_dict()
             generate_shape(shape_param_path, model_weight)
         self.shape_parameter = torch.load(shape_param_path)
-        self.weight, self.model_path = None, self.configs["model_path"]
-        self.weight_path = self.configs["weight_path"]
+        self.model_path, self.weight_path = self.configs["model_path"], self.configs["weight_path"]
 
     def start(self):
         self.logger.info("client starts, username: " + self.configs['username'])
@@ -147,8 +146,8 @@ class FL_Client(object):
     def dec_num(self, num):
         return Dec(self.sk, num)
 
-    def _encrypt(self, model_weight):  # to avoid the same function name
+    def encrypts(self, model_weight):  # to avoid the same function name
         return encrypt(self.pk, model_weight)
 
-    def _decrypt(self, encrypted_model_weight, client_num):
-        return  decrypt(self.sk, encrypted_model_weight, client_num, self.shape_parameter)
+    def decrypts(self, encrypted_model_weight, client_num):
+        return decrypt(self.sk, encrypted_model_weight, client_num, self.shape_parameter)

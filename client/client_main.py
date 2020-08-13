@@ -46,7 +46,6 @@ if __name__ == '__main__':
                                    shuffle=True,
                                    num_workers=train_config['num_workers'])
 
-    # set up the model
     device = 'cuda' if train_config['use_cuda'] else 'cpu'
     model = densenet3d().to(device)
     weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
@@ -71,7 +70,6 @@ if __name__ == '__main__':
     log = logging.getLogger()
 
     ''' === receive the initial model from the server, add aggregation weight, sent back === '''
-    logger.info("start querying the initial model from the server")
     while True:
         request_model_result = client.request_model()
         if request_model_result == "ok":
@@ -84,9 +82,9 @@ if __name__ == '__main__':
             break
 
     _model_state, _weight_sum, _client_num = client.unpack_param(
-        _model_param_path=client.train_model_path)
+        _model_param_path=client.weight_path)
 
-    # aggregation weight at the server side,
+    # aggregation weight when decode the models from server,
     # based on the amount of training data the client use
     client.set_weight(iter_per_epoch)
     _model_Param = {"model_state_dict": _model_state,
@@ -94,14 +92,14 @@ if __name__ == '__main__':
     savePath = os.path.join(client.configs["models_dir"],
                             './model_Param_{}.pth'.format(client.configs['username']))
     torch.save(_model_Param, savePath)
-    client.send_model(model_weight_path=savePath, versionNum=0)
+    client.send_model(weight_path=savePath, versionNum=0)
 
     ''' === formally start training, receive and send model to the server every epoch ==='''
     logger.info("******\ntraining begin\n******")
     for epoch_num in range(client.configs['iteration']):
         request_model_finish = False
 
-        while True:  # second request
+        while True:
             request_model_result = client.request_model()
             if request_model_result == "ok":
                 request_model_finish = True
@@ -117,15 +115,15 @@ if __name__ == '__main__':
         # unpack the package, decrypt model parameters and aggregation weights
         logger.info('***** current epoch is {} *****'.format(epoch_num))
         _model_state, _weight_sum, _client_num = client.unpack_param(
-            _model_param_path=client.train_model_path)
-        dec_model_state = client.decrypt(_model_state, _client_num)
+            _model_param_path=client.weight_path)
+        dec_model_state = client.decrypts(_model_state, _client_num)
         client.set_weight(iter_per_epoch)
 
         for key in dec_model_state.keys():
             if epoch_num == 0:  # first aggregation is simple addition
                 dec_model_state[key] = dec_model_state[key] / _client_num
             else:   # later aggregation is weight summation
-                dec_model_state[key] = dec_model_state[key] * client.weight / _weight_sum
+                dec_model_state[key] = dec_model_state[key]
         torch.save(dec_model_state, './model/{}_current.pth'.format(client.configs['username']))
         temp_key = list(dec_model_state.keys())[0]
         print("After Decryption\n", dec_model_state[temp_key][0])
@@ -150,13 +148,13 @@ if __name__ == '__main__':
             trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight / _weight_sum
 
         # pdb.set_trace()
-        enc_model_state = client.encrypt(trained_model_state_dict)
+        enc_model_state = client.encrypts(trained_model_state_dict)
         _model_Param = {"model_state_dict": enc_model_state,
-                        "client_weight":    client.weight}
+                        "client_weight": client.weight}
         savePath = os.path.join(client.configs["models_dir"],
                                 './model_Param_{}.pth'.format(client.configs['username'], ))
         torch.save(_model_Param, savePath)
-        client.send_model(model_weight_path=savePath, versionNum=epoch_num)
+        client.send_model(weight_path=savePath, versionNum=epoch_num)
 
     logger.info("training finished")
     client.stop()

@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     # pdb.set_trace()
     restore = True
-    restore_path = '../server/model/merge_model/initial.pth' # 'model/model_Param_Bob.pth'
+    restore_path = 'model/initial.pth'  # 'model/model_Param_Bob.pth'
     if restore:
         ob = torch.load(restore_path)
         state = ob['model_state_dict']
