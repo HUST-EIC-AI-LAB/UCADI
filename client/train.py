@@ -57,7 +57,7 @@ def train(filename, device, train_data_loader, model, optimizer, log,
             scaled_loss.backward()
         optimizer.step()
         # train_scheduler.step(epoch) if epoch > warm_epoch else warmup_scheduler.step()
-        train_scheduler.step() if epoch > warm_epoch else warmup_scheduler.step()
+        train_scheduler.step() if epoch >= warm_epoch else warmup_scheduler.step()
 
         running_loss += loss.item()
         print("{} epoch, {} iter, loss {}".format(epoch, index + 1, loss.item()))
@@ -72,8 +72,8 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 
 if __name__ == "__main__":
 
-    # with open('./config/train_config_client1.json') as j:
-    with open('./config/train_config_client1_hc.json') as j:
+    with open('./config/train_config_client1.json') as j:
+    # with open('./config/train_config_client1_hc.json') as j:
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
@@ -96,27 +96,17 @@ if __name__ == "__main__":
     model, optimizer = amp.initialize(model, optimizer)
     model = nn.DataParallel(model)
 
+    def myencrypt(seed, model_weight):
+        pk, sk = KeyGen(seed)
+        encrypt_params = encrypt(pk, model_weight)
+        return encrypt_params
+
     def mydecrypt(seed, encrypted_model_weight, client_num, shape_parameter):
         pk, sk = KeyGen(seed)
         decrypt_params = decrypt(sk, encrypted_model_weight, client_num, shape_parameter)
         return decrypt_params
 
     # pdb.set_trace()
-    restore = False
-    restore_path = 'model/model_Param_Bob.pth'
-    if restore:
-        ob = torch.load(restore_path)
-        state = ob['model_state_dict']
-        decrypt_params = mydecrypt(seed=1434, encrypted_model_weight=state, 
-            client_num=1, shape_parameter=torch.load('./config/shape_parameter.pth'))
-        model.load_state_dict(decrypt_params)
-
-    def myencrypt(seed, model_weight):
-        pk, sk = KeyGen(seed)
-        encrypt_params = encrypt(pk, model_weight)
-        return encrypt_params
-
-    pdb.set_trace()
     save_encrypt = True
     if save_encrypt:
         encrypt_params = myencrypt(seed=1434, model_weight=model.state_dict())
@@ -124,8 +114,19 @@ if __name__ == "__main__":
                         "client_weight": 1.0,
                         "client_num": 1}
 
-        torch.save('./initial.pth', _model_Param)
+        torch.save(_model_Param, '../server/model/merge_model/initial.pth')
 
+    # pdb.set_trace()
+    restore = True
+    restore_path = '../server/model/merge_model/initial.pth' # 'model/model_Param_Bob.pth'
+    if restore:
+        ob = torch.load(restore_path)
+        state = ob['model_state_dict']
+        decrypt_params = mydecrypt(seed=1434, encrypted_model_weight=state, 
+            client_num=1, shape_parameter=torch.load('./config/shape_parameter.pth'))
+        model.load_state_dict(decrypt_params)
+
+    # pdb.set_trace()
     iter_per_epoch, warm_epoch = len(train_data_loader), 5
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
     train_scheduler = optim.lr_scheduler.CosineAnnealingLR(

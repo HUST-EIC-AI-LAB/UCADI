@@ -41,22 +41,18 @@ def getWeightList(weights_store_directory, map_loc=torch.device('cuda')):
 
 def aggregateWeight(weightDictList,):
     """
-
     :param weightDictList: transmitted weight
     :return:
     """
     
     print('length of dict:', len(weightDictList[0]))
     length = len(weightDictList)
-    # keyList = weightDictList[0].keys()
     new_dict = []
 
     for index in range(len(weightDictList[0])):
         ini_tensor = weightDictList[0][index]
-
         for i in range(1, length):
             ini_tensor += weightDictList[i][index]
-
         new_dict.append(ini_tensor)
 
     return new_dict
@@ -66,10 +62,9 @@ def weightSave(weights_direc, origin, savePath, map_loc = torch.device('cpu')):
     # get weight dicts list
     weight_dict_list = getWeightList(weights_direc, map_loc=map_loc)
 
-    # average aggregation
+    # summation aggregation
     res_state_dict = aggregateWeight(weight_dict_list, origin)
 
-    # save
     torch.save(res_state_dict, savePath)
 
 

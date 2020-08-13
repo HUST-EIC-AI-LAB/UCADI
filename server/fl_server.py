@@ -30,8 +30,6 @@ class FL_Server(object):
         self.finish = False
         self.max_delay = 10000
 
-        # Set up Clients status
-        # -1 代表未参与训练（未拿模型）; 0 代表 正在训练; 1 代表训练完毕（已发送新模型）
         # -1 means no training (no model); 0 means training in process;
         # 1 means training completed (new model has been sent)
         for client in self.all_clients:
@@ -98,15 +96,14 @@ class FL_Server(object):
 
     def register(self, conn, head_dir):
 
-        username = head_dir['username']
-        password = head_dir['password']
-
+        username, password = head_dir['username'], head_dir['password']
         if username not in self.all_clients or password != self.all_clients[username]:
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
         else:
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
-            self.logger.info(username + " successfully registered!")
+            self.logger.info(username + " successfully registered! Wait a bit more for other clients to join.")
             send_file(conn=conn, file_path=self.configs["model_path"], new_file_name=None)
+            sleep(30)
 
     def send_model(self, conn, head_dir, _model_path=None):
         username = head_dir["username"]
@@ -117,15 +114,11 @@ class FL_Server(object):
         else:
             try:
                 if status == -1:
-                    self.logger.info("send model to " + username + "...")
                     send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
-                    if _model_path is None:
-                        model_path = self.model_path
-                    else:
-                        model_path = _model_path
+                    model_path = self.model_path if _model_path is None else _model_path
                     send_file(conn=conn, file_path=model_path, new_file_name=None)
                     self.clients_status[username] = 0
-                    self.logger.info("send model to " + username + "!")
+                    self.logger.info("sent model to " + username)
                 else:
                     send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
                     self.clients_status[username] = -1
@@ -140,12 +133,11 @@ class FL_Server(object):
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
         else:
             try:
-                self.logger.info("receive moedel from " + username + "...")
                 send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
                 recv_and_write_file(conn=conn, file_dir=self.client_weight_dir,
                                     buff_size=self.configs['buff_size'])
                 self.clients_status[username] = 1
-                self.logger.info("receive model from " + username + ", over!")
+                self.logger.info("received model from " + username)
             finally:
                 self.lock.release()
 
@@ -156,38 +148,29 @@ class FL_Server(object):
         :return: aggregated model state_dict
         """
         print("*** aggregation begin ***")
-        # pdb.set_trace()
-        weight_dict_list, weight_sum, client_num = getWeightList(weights_store_directory=client_models_dir,
-                                                                 map_loc=self.map_loc)
-
-        new_parm = aggregateWeight(weightDictList=weight_dict_list,)
-
+        weight_dict_list, weight_sum, client_num = getWeightList(
+            weights_store_directory=client_models_dir, map_loc=self.map_loc)
+        new_parm = aggregateWeight(weightDictList=weight_dict_list)
         return new_parm, weight_sum, client_num
 
     def pack_param(self, _model_state, _client_weight, _client_num,  save_path=None):
         ob = {"model_state_dict": _model_state,
               "client_weight": _client_weight,
               "client_num": _client_num}
-
-        if save_path is not None:
-            torch.save(ob, save_path)
-        else:
-            torch.save(ob, self.configs["weight_path"])
+        torch.save(ob, save_path) if save_path is not None else torch.save(ob, self.configs["weight_path"])
 
     @staticmethod
     def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
-        state = ob['model_state_dict']
-        client_weight = ob['client_weight']
-
+        state, client_weight = ob['model_state_dict'], ob['client_weight']
         return state, client_weight
 
     @staticmethod
     def flush_client_weight_dir(client_models_dir='./model/client_model/'):
-        """Clean up all files within the client_model_dir
-        """
+        """Clean up all files within the client_model_dir"""
         file_list = os.listdir(client_models_dir)
         for i in range(len(file_list)):
             filePath = os.path.join(client_models_dir, file_list[i])
             os.remove(filePath)
-        print("all .pth files removed")
+        print("all clients .pth caches removed")
+
