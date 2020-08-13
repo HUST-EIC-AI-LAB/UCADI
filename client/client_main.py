@@ -151,8 +151,6 @@ if __name__ == '__main__':
 
         # pdb.set_trace()
         enc_model_state = client.encrypt(trained_model_state_dict)
-        # dec_model_again = client.decrypt(enc_model_state, _weight_sum)
-        # print("some test decrypted state:", dec_model_again[temp_key][0])
         _model_Param = {"model_state_dict": enc_model_state,
                         "client_weight":    client.weight}
         savePath = os.path.join(client.configs["models_dir"],

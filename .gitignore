@@ -9,4 +9,5 @@ client/key
 cam_dev
 client/*.pth
 client/*/*.pth
+server/model/client_model/*.pth
 server/model/merge_model/*.pth

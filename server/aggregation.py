@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """aggregate all the encrypted weights in the weights directory"""
 import os
+import sys
 import pdb
 import torch
-
+sys.path.append('common')
 # for loading the encrypted file, import the following:
 # from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 
@@ -16,41 +17,42 @@ def getWeightList(weights_store_directory, map_loc=torch.device('cuda')):
     ATTENTION: After each aggregation, the weights_store_directory will be flushed.
     """
     fileList = os.listdir(weights_store_directory)
-    weightDictList, weight_sum, client_num = [], 0, len(fileList)
+    weightDictList, weightList, client_num = [], [], len(fileList)
 
     for file in fileList:
         file_path = os.path.join(weights_store_directory, file)
-        # the client's weights are set as the amount of training data
+        # weights are set as the clients' amount of training data
         _model_param = torch.load(file_path, map_location=map_loc)
-        weight_sum += _model_param['client_weight']
+        weightList.append(_model_param['client_weight'])
         weightDictList.append(_model_param['model_state_dict'])
-
-    return weightDictList, weight_sum, client_num
-
-def aggregateWeight(weightDictList):
-    """Aggregate the Weights by Simple Summation"""
     
-    # print('length of dict:', len(weightDictList[0]))
-    length, new_dict = len(weightDictList), []
+    return weightDictList, weightList, client_num
+
+def aggregateWeight(weightDictList, weightList):
+    """Aggregate the Weights by Simple Summation (Multiplication of CypherText is not straightforward)
+    weightDictList[i] -> i-th model states dict, all have same params order
+    """
+    new_dict, weight_sum = [], sum(weightList)
 
     for index in range(len(weightDictList[0])):
-        ini_tensor = weightDictList[0][index]
-        for i in range(1, length):
-            ini_tensor += weightDictList[i][index]
+        ini_tensor = weightDictList[0][index] # * weightList[0] / weight_sum
+        for i in range(1, len(weightDictList)):
+            ini_tensor += weightDictList[i][index] # * weightList[i] / weight_sum
         new_dict.append(ini_tensor)
 
     return new_dict
 
-def weightSave(weights_direc, origin, savePath, map_loc=torch.device('cpu')):
+def weightSave(weights_direc, savePath, map_loc=torch.device('cuda')):
 
-    weight_dict_list = getWeightList(weights_direc, map_loc=map_loc)
-    res_state_dict = aggregateWeight(weight_dict_list, origin)
+    weightDictList, weightList, client_num = getWeightList(weights_direc, map_loc)
+    res_state_dict = aggregateWeight(weightDictList, weightList)
     torch.save(res_state_dict, savePath)
 
 
 if __name__ == '__main__':
 
-    weights_store_directory = './model/client_model/'
-    state_dict_list, weight_num, _ = getWeightList(weights_store_directory)
-    aggre = aggregateWeight(state_dict_list)
-    torch.save(aggre, './aggregated.pth')
+    weights_store_directory = './model/merge_model' # './model/client_model/'
+    weightDictList, weightList, client_num = getWeightList(weights_store_directory)
+    aggre = aggregateWeight(weightDictList, weightList)
+    torch.save(aggre, './model/initial.pth')
+

@@ -14,27 +14,15 @@ def encrypt(public_key, model_weight):
     Due to the max length is 65536, so we cut each weight to a fixed size = 65536,
     so that one tensor could to cut to many.
     """
-    prec = 32
-    bound = 2 ** 3
-    # model = torch.load(model_weight)
-
-    # if not os.path.exists(shape_path):
-    # 	model_parameters_dict = collection.OrderedDict()
-    # 	for key, value in model:
-    # 		model_parameters_dict[key] = torch.numel(value), value.shape
-    # 	torch.save(model_parameters_dict, shape_path)
-
-    # shape_parameter =  torch.load(shape_path)
-    params_list = list()
+    prec, bound, params_list = 32, 2 ** 3, list()
     for key, value in model_weight.items():
         length = torch.numel(value) // 65536
         params = copy.deepcopy(value).view(-1).float()
         for ind in range(length):
-            params_list.append(params[ind * 65536: (ind + 1) * 65536])
+            params_list.append(params[ind * 65536: (ind+1) * 65536])
         params_list.append(params[length * 65536:])
 
     params_list = [((params + bound) * 2 ** prec).long().cuda() for params in params_list]
-
     encrypted_params = [Enc(public_key, params) for params in params_list]
 
     return encrypted_params
@@ -47,17 +35,13 @@ def decrypt(private_key, encrypted_params, shape_parameter):
     shape_parameter: dict(), shape of each layer about model.
     return: decrypted params, torch.nn.Module.state_dict()
     """
-    prec = 32
-    bound = 2 ** 3
+    prec, bound = 32, 2 ** 3
     dencrypted_params = [(Dec(private_key, params).float() / (2 ** prec) - bound) for params in encrypted_params]
 
-    ind = 0
-    weight_params = dict()
+    ind, weight_params = 0, dict()
     for key in shape_parameter.keys():
         params_size, params_shape = shape_parameter[key]
-        length = params_size // 65536
-        # print(length)
-        dencrypted = list()
+        length, decrypted = params_size // 65536, list()
         for index in range(length):
             dencrypted.append(dencrypted_params[ind])
             ind += 1
@@ -65,7 +49,6 @@ def decrypt(private_key, encrypted_params, shape_parameter):
         ind += 1
         weight_params[key] = torch.cat(dencrypted, 0).reshape(params_shape)
 
-    # torch.save(weight_params, 'weight_encrypted.pth')
     return weight_params
 
 
@@ -74,7 +57,6 @@ def generate_shape(path, model):
     Record the concret size of each layer about model.
     It will be used to decrypt.
     """
-    # print(model)
     if not os.path.exists(path):
         model_parameters_dict = collections.OrderedDict()
         for key, value in model.items():

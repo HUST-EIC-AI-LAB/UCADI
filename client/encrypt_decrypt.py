@@ -14,14 +14,13 @@ def encrypt(public_key, model_weight):
     Due to the max length is 65536, so we cut each weight to a fixed size = 65536,
     so that one tensor could to cut to many.
     """
-    prec, bound = 32, 2 ** 3
-    params_list = list()
+    prec, bound, params_list = 32, 2 ** 3, list()
     for key, value in model_weight.items():
         length = torch.numel(value) // 65536
         params = copy.deepcopy(value).view(-1).float()
         for ind in range(length):
-                params_list.append(params[ind*65536: (ind+1)*65536])
-        params_list.append(params[length*65536:])
+                params_list.append(params[ind * 65536: (ind+1) * 65536])
+        params_list.append(params[length * 65536:])
 
     params_list = [((params + bound) * 2 ** prec).long().cuda() for params in params_list]
     encrypted_params = [Enc(public_key, params) for params in params_list]
@@ -36,13 +35,11 @@ def decrypt(private_key, encrypted_params, num, shape_parameter):
     shape_parameter: dict(), shape of each layer about model.
     return: decrypted params, torch.nn.Module.state_dict()
     """
-    prec = 32
-    bound = 2 ** 3
+    prec, bound = 32, 2 ** 3
     decrypted_params = [(Dec(private_key, params).float() / (2 ** prec) / num - bound) 
         for params in encrypted_params]
 
-    ind = 0
-    weight_params = dict()
+    ind, weight_params = 0, dict()
     for key in shape_parameter.keys():
             params_size, params_shape = shape_parameter[key]
             length = params_size // 65536
@@ -94,3 +91,4 @@ if __name__ == '__main__':
     print(model1['module.classifier.bias'])
     print(model2['module.classifier.bias'])
     print(decrypt_params['module.classifier.bias'])
+

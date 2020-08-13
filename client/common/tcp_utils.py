@@ -10,7 +10,7 @@ def send_head_dir(conn, head_dir):
 
 
 def send_file(conn, file_path, new_file_name):
-    """Send the Files"""
+    """send the files"""
     if new_file_name is None:
         new_file_name = file_path.split("/")[-1]
     head_dir = json.dumps({'filename': new_file_name,
@@ -31,8 +31,7 @@ def recv_and_write_file(conn, file_dir, buff_size):
     :return: saved filename
     """
     head_dir = recv_head_dir(conn)
-    file_size_bytes = head_dir['file_size_bytes']
-    file_name = head_dir["filename"]
+    file_size_bytes, file_name = head_dir['file_size_bytes'], head_dir["filename"]
 
     with open(file_dir + file_name, 'wb') as f:
         count_len = 0
