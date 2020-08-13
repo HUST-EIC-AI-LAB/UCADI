@@ -17,7 +17,6 @@ from model.model import densenet3d
 from train import train, add_weight_decay
 from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
-
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -56,7 +55,8 @@ if __name__ == '__main__':
 
     # scheduler is called per training steps/iterations
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
-    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)
+    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, (train_config['epoch'] - warm_epoch) * iter_per_epoch)
 
     # set up the log file
     logfile = "./train_valid_client1.log"
@@ -77,14 +77,14 @@ if __name__ == '__main__':
         elif request_model_result == "error":
             break
 
-    # what if receiving is not successful??
-    _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
+    _model_state, _weight_sum, _client_num = client.unpack_param(
+        _model_param_path=client.train_model_path)
 
     # aggregation weight at the server side,
     # based on the amount of training data the client use
     client.set_weight(iter_per_epoch)
     _model_Param = {"model_state_dict": _model_state,
-                    "client_weight": client.weight}
+                    "client_weight":    client.weight}
     savePath = os.path.join(client.configs["models_dir"],
                             './model_Param_{}.pth'.format(client.configs['username']))
     torch.save(_model_Param, savePath)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     for epoch_num in range(client.configs['iteration']):
         request_model_finish = False
 
-        while True:
+        while True:  # second request
             request_model_result = client.request_model()
             if request_model_result == "ok":
                 request_model_finish = True
@@ -110,8 +110,10 @@ if __name__ == '__main__':
 
         # unpack the package, decrypt model parameters and aggregation weights
         logger.info('***** current epoch is {} *****'.format(epoch_num))
-        _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
+        _model_state, _weight_sum, _client_num = client.unpack_param(
+            _model_param_path=client.train_model_path)
         dec_model_state = client.decrypt(_model_state, _client_num)
+        client.set_weight(iter_per_epoch/_weight_sum)
 
         logger.info("weight num calculated from server:{}".format(iter_per_epoch / _weight_sum))
         print("some of decrypted parameters:")
@@ -120,6 +122,7 @@ if __name__ == '__main__':
         logger.info("{} weight is {}".format(client.configs['username'], client.weight))
         logger.info("weight sum is {}\t client num is {}".format(_weight_sum, _client_num))
 
+        # TODO
         for key in dec_model_state.keys():
             if epoch_num == 0:
                 dec_model_state[key] = dec_model_state[key]
@@ -136,14 +139,14 @@ if __name__ == '__main__':
                             epoch=epoch_num, criterion=criterion, warmup_scheduler=warmup_scheduler,
                             train_scheduler=train_scheduler, save_interval=5, save_folder='./model/')
 
-        ## encryption, then send the model back to the server
+        # encryption, then send the model back to the server
         trained_model_state_dict = torch.load(update_name)
         print("After training, some updated model parameters: ")
         print(trained_model_state_dict[temp_key][0])
         print("*****************************\n*****************************\n")
         logger.info("client weight {}\n".format(client.weight))
         for key in trained_model_state_dict.keys():
-            trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight / _weight_sum
+            trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight
 
         pdb.set_trace()
         enc_model_state = client.encrypt(trained_model_state_dict)
@@ -151,11 +154,11 @@ if __name__ == '__main__':
         print("some test decrypted state:", dec_model_again[temp_key][0])
 
         _model_Param = {"model_state_dict": enc_model_state,
-                        "client_weight": client.weight}
+                        "client_weight":    client.weight}
         savePath = os.path.join(client.configs["models_dir"],
                                 './model_Param_{}.pth'.format(client.configs['username'], ))
         torch.save(_model_Param, savePath)
-        client.send_model(model_weight_path=savePath, versionNum=epoch_num+1)
+        client.send_model(model_weight_path=savePath, versionNum=epoch_num + 1)
 
     logger.info("training finished")
     client.stop()

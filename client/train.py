@@ -13,7 +13,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from model.model import densenet3d
 from encrypt_decrypt import encrypt, decrypt
-from common.LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+from common.LWE_based_PHE.cuda_test import KeyGen
 from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 def add_weight_decay(net, l2_value, skip_list=()):
@@ -56,7 +56,9 @@ def train(filename, device, train_data_loader, model, optimizer, log,
         with amp.scale_loss(loss, optimizer) as scaled_loss:
             scaled_loss.backward()
         optimizer.step()
-        train_scheduler.step(epoch) if epoch > warm_epoch else warmup_scheduler.step()
+        # train_scheduler.step(epoch) if epoch > warm_epoch else warmup_scheduler.step()
+        train_scheduler.step() if epoch > warm_epoch else warmup_scheduler.step()
+
         running_loss += loss.item()
         print("{} epoch, {} iter, loss {}".format(epoch, index + 1, loss.item()))
 
@@ -98,20 +100,36 @@ if __name__ == "__main__":
         pk, sk = KeyGen(seed)
         decrypt_params = decrypt(sk, encrypted_model_weight, client_num, shape_parameter)
         return decrypt_params
-    restore = True
+
+    # pdb.set_trace()
+    restore = False
     restore_path = 'model/model_Param_Bob.pth'
-   
-    pdb.set_trace()
     if restore:
         ob = torch.load(restore_path)
         state = ob['model_state_dict']
         decrypt_params = mydecrypt(seed=1434, encrypted_model_weight=state, 
             client_num=1, shape_parameter=torch.load('./config/shape_parameter.pth'))
         model.load_state_dict(decrypt_params)
-    
+
+    def myencrypt(seed, model_weight):
+        pk, sk = KeyGen(seed)
+        encrypt_params = encrypt(pk, model_weight)
+        return encrypt_params
+
+    pdb.set_trace()
+    save_encrypt = True
+    if save_encrypt:
+        encrypt_params = myencrypt(seed=1434, model_weight=model.state_dict())
+        _model_Param = {"model_state_dict": encrypt_params,
+                        "client_weight": 1.0,
+                        "client_num": 1}
+
+        torch.save('./initial.pth', _model_Param)
+
     iter_per_epoch, warm_epoch = len(train_data_loader), 5
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
-    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)
+    train_scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, (train_config['epoch'] - warm_epoch) * iter_per_epoch)
 
     logfile = "./train_valid_client1.log"
     os.remove(logfile) if os.path.exists(logfile) else None

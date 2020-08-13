@@ -23,10 +23,9 @@ class FL_Client(object):
         self.ip_port = (self.configs["ip"], self.configs["send_port"])
         self.server_ip_port = (self.configs['server_ip'], self.configs['server_port'])
 
-        # generate public_key and private_key
         self.seed = self.configs['seed']
         self.model = densenet3d().cuda()
-        self.pk, self.sk = KeyGen(self.seed)
+        self.pk, self.sk = KeyGen(self.seed)  # generate public_key and private_key
 
         if os.path.exists(shape_param_path):
             pass
@@ -38,7 +37,7 @@ class FL_Client(object):
 
         self.weight = None
         self.model_path = self.configs["model_path"]
-        self.train_model_path = self.configs["model_path"]
+        self.train_model_path = self.configs["weight_path"]
 
     def start(self):
         self.logger.info("client begin")
@@ -52,7 +51,6 @@ class FL_Client(object):
         self.logger.info("register with server ...")
         send_socket = socket(AF_INET, SOCK_STREAM)
         try:
-            # pdb.set_trace()
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
@@ -64,7 +62,7 @@ class FL_Client(object):
             recv_dir = recv_head_dir(conn=send_socket)
 
             if recv_dir["msg"] == "ok":
-                # 接收 model.py
+                # receive and save model.py from clients
                 recv_and_write_file(conn=send_socket,
                                     file_dir='/'.join(self.model_path.split("/")[:-1]) + "/",
                                     buff_size=self.configs["buff_size"])
@@ -138,72 +136,6 @@ class FL_Client(object):
         finally:
             send_socket.close()
             sleep(1)
-
-    # def start(self):
-    #     self.logger.info("client 启动...")
-    #     self.recv_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    #     self.recv_socket.bind(self.recv_ip_port)
-    #     self.recv_socket.listen(5)
-    #
-    # def stop(self):
-    #     self.logger.info("client 退出...")
-    #     self.recv_socket.close()
-    #
-    # def registry(self):
-    #     self.logger.info("向 server 注册...")
-    #     send_socket = socket(AF_INET, SOCK_STREAM)
-    #     try:
-    #         send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    #         send_socket.bind(self.send_ip_port)
-    #         send_socket.connect(self.server_ip_port)
-    #
-    #         head_dir = json.dumps({'username': self.configs['username'],
-    #                                'password': self.configs['password'],
-    #                                'recv_port': self.configs['recv_port']})  # 将字典转换成字符串
-    #         send_head_dir(conn=send_socket, head_dir=head_dir)
-    #         # 接收 download.py
-    #         recv_and_write_file(conn=send_socket, file_dir='/'.join(self.configs["model_path"].split("/")[:-1]) + "/",
-    #                             buff_size=self.configs["buff_size"])
-    #     finally:
-    #         send_socket.close()
-    #     self.logger.info("注册成功！")
-    #
-    # def recv_model(self):
-    #     self.logger.info("等待 server 发送模型...")
-    #     conn, addr = self.recv_socket.accept()
-    #     try:
-    #         fileName = recv_and_write_file(conn=conn,
-    #                                        file_dir='/'.join(self.configs["weight_path"].split("/")[:-1]) + "/",
-    #                                        buff_size=self.configs['buff_size'])
-    #         savedPath = os.path.join('/'.join(self.configs["weight_path"].split("/")[:-1]) + "/", fileName)
-    #     finally:
-    #         conn.close()
-    #     self.logger.info("接收成功！")
-    #     return savedPath
-    #
-    # def send_model(self, model_weight_path, versionNum):
-    #     """
-    #     The name format of the models:
-    #         model_state: model_state_Name_Version
-    #         model_weight: model_weight_Name_Version
-    #         eg: model_state_Bob_v1
-    #             model_weight_Alan_v2
-    #     :return:
-    #     """
-    #     self.logger.info("向 server 发送模型...")
-    #
-    #     send_socket = socket(AF_INET, SOCK_STREAM)
-    #     try:
-    #         send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    #         send_socket.bind(self.send_ip_port)
-    #         send_socket.connect(self.server_ip_port)
-    #
-    #         send_file(conn=send_socket, file_path=model_weight_path,
-    #                   new_file_name="model_Param_{}_v{}.pth".format(self.configs['username'], versionNum))
-    #     finally:
-    #         send_socket.close()
-    #
-    #     self.logger.info("发送模aggregation.py型完毕！")
 
     def set_weight(self, weight=1.0):
         self.weight = weight
