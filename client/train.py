@@ -12,8 +12,9 @@ sys.path.append('common')
 import torch.optim as optim
 import torch.nn.functional as F
 from model.model import densenet3d
+from encrypt_decrypt import encrypt, decrypt
+from common.LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 from common import TrainDataset, DataLoader, WarmUpLR, Logger
-
 
 def add_weight_decay(net, l2_value, skip_list=()):
     """no L2 regularisation on the bias of the model, in optimiser"""
@@ -47,7 +48,7 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 
         optimizer.zero_grad()
         inputs, labels = inputs.to(device), labels.to(device)
-        pdb.set_trace()
+        
         for idx, label in enumerate(labels):
             if label.size() == torch.Size([2]):  # == torch.tensor([[1, 1]]):
                 labels[idx] = label[0]
@@ -58,7 +59,6 @@ def train(filename, device, train_data_loader, model, optimizer, log,
                                mode="trilinear", align_corners=False)
         outputs = model(inputs)
         loss = criterion(outputs, labels)
-        pdb.set_trace()
 
         # add apex for "loss.backward()"
         with amp.scale_loss(loss, optimizer) as scaled_loss:
@@ -69,12 +69,11 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 
         running_loss += loss.item()
         print("{} epoch, {} iter, loss {}".format(epoch, index + 1, loss.item()))
-        # break
     log.info("{} epoch, Average loss {}".format(epoch, running_loss / train_num))
 
     # save checkpoint
     saved_path = save_folder + str(epoch) + '_' + filename
-    log.info("save {} epoch.pth".format(epoch))
+    log.info("save model parameters for {} epoch".format(epoch))
     torch.save(model.state_dict(), saved_path)
 
     return saved_path
@@ -106,14 +105,21 @@ if __name__ == "__main__":
     model, optimizer = amp.initialize(model, optimizer)
     model = nn.DataParallel(model)
 
-    pdb.set_trace()
-    restore = False
+    def mydecrypt(seed, encrypted_model_weight, client_num, shape_parameter):
+        pk, sk = KeyGen(seed)
+        decrypt_params = decrypt(sk, encrypted_model_weight, client_num, shape_parameter)
+        return decrypt_params
+    restore = True
     restore_path = 'model/model_Param_Bob.pth'
+   
+    pdb.set_trace()
     if restore:
         ob = torch.load(restore_path)
         state = ob['model_state_dict']
-        model.load_state_dict(state)
-    pdb.set_trace()
+        decrypt_params = mydecrypt(seed=1434, encrypted_model_weight=state, 
+            client_num=1, shape_parameter=torch.load('./config/shape_parameter.pth'))
+        model.load_state_dict(decrypt_params)
+    
     iter_per_epoch, warm_epoch = len(train_data_loader), 5
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
     train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)

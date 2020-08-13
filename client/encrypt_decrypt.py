@@ -48,14 +48,14 @@ def decrypt(private_key, encrypted_params, num, shape_parameter):
     """
     prec = 32
     bound = 2 ** 3
-    decrypted_params = [(Dec(private_key, params).float() / (2 ** prec) / num - bound) for params in encrypted_params]
+    decrypted_params = [(Dec(private_key, params).float() / (2 ** prec) / num - bound) 
+        for params in encrypted_params]
 
     ind = 0
     weight_params = dict()
     for key in shape_parameter.keys():
             params_size, params_shape = shape_parameter[key]
             length = params_size // 65536
-            # print(length)
             decrypted = list()
             for index in range(length):
                     decrypted.append(decrypted_params[ind])
@@ -64,7 +64,6 @@ def decrypt(private_key, encrypted_params, num, shape_parameter):
             ind += 1
             weight_params[key] = torch.cat(decrypted, 0).reshape(params_shape)
 
-    # torch.save(weight_params, 'weight_encrypted.pth')
     return weight_params
 
 
@@ -82,6 +81,7 @@ def generate_shape(path, model):
 
 
 if __name__ == '__main__':
+
     pk, sk = KeyGen()
     model0 = torch.load("weight.pth")
     generate_shape("../shape_parameter.pth", model0)
