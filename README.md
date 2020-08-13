@@ -226,12 +226,9 @@ CUDA_VISIBLE_DEVICES=6,7 python client2_main.py
 ```
 
 
-
 **3.2  Some tips**
 
 Our FL process has more flexibility. On the Server side, developers can select all registered clients to return to their parameter files and start aggregation. Or you can also set a minimum number of clients `min_clients` and a `maximum` delay: when enough number of clients return their files or no new client returns its file in the predefined maximum delay, the server can start the aggregation process in advance, and no longer receive any client requests.
-
-These contents can be found in the `server_main_raw.py` file and the corresponding code is provided.
 
 
 

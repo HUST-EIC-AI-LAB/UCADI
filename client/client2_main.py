@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from apex import amp
+sys.path.append('common')
 from fl_client import FL_Client
 from model.model import densenet3d
 from train import train, add_weight_decay

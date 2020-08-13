@@ -47,12 +47,14 @@ if __name__ == '__main__':
     weight = torch.from_numpy(np.array([[0.2, 0.2, 0.4, 0.2]])).float()
     criterion = nn.CrossEntropyLoss(weight=weight).to(device)
 
-    # add no bias decay
+    # add no l2 decay to the bias terms during optimisation
     params = add_weight_decay(model, 4e-5)
     optimizer = optim.SGD(params, lr=train_config['lr'], momentum=train_config['momentum'])
     model, optimizer = amp.initialize(model, optimizer)
     model = nn.DataParallel(model)
     iter_per_epoch, warm_epoch = len(train_data_loader), 5
+
+    # scheduler is called per training steps/iterations
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
     train_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, train_config['epoch'] - warm_epoch)
 
@@ -62,7 +64,7 @@ if __name__ == '__main__':
     sys.stdout = Logger(logfile)
     log = logging.getLogger()
 
-    ''' === receive the initial model from the server === '''
+    ''' === receive the initial model from the server, add aggregation weight, sent back === '''
     logger.info("start querying the initial model from the server")
     while True:
         request_model_result = client.request_model()
@@ -78,7 +80,8 @@ if __name__ == '__main__':
     # what if receiving is not successful??
     _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
 
-    # aggregation weight at the server side, based on how many training data the client have
+    # aggregation weight at the server side,
+    # based on the amount of training data the client use
     client.set_weight(iter_per_epoch)
     _model_Param = {"model_state_dict": _model_state,
                     "client_weight": client.weight}
@@ -87,8 +90,7 @@ if __name__ == '__main__':
     torch.save(_model_Param, savePath)
     client.send_model(model_weight_path=savePath, versionNum=0)
 
-    # pdb.set_trace()
-    ''' === formally start training ==='''
+    ''' === formally start training, receive and send model to the server every epoch ==='''
     logger.info("******\ntraining begin\n******")
     for epoch_num in range(client.configs['iteration']):
         request_model_finish = False
@@ -106,10 +108,9 @@ if __name__ == '__main__':
         if not request_model_finish:
             continue
 
-        # unpack the package, and decrypt model parameters and aggregation weights
+        # unpack the package, decrypt model parameters and aggregation weights
         logger.info('***** current epoch is {} *****'.format(epoch_num))
         _model_state, _weight_sum, _client_num = client.unpack_param(_model_param_path=client.train_model_path)
-        pdb.set_trace()
         dec_model_state = client.decrypt(_model_state, _client_num)
 
         logger.info("weight num calculated from server:{}".format(iter_per_epoch / _weight_sum))
