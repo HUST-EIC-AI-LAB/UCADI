@@ -4,7 +4,7 @@
   "recv_port": 12342,
   "clients_path": "./config/clients.json",
   "model_path": "./model/model.py",
-  "weight_path": "./model/merge_model/initial.pth",
+  "weight_path": "./model/initial.pth",
   "merge_model_dir": "./model/merge_model/",
   "client_weight_dir": "./model/client_model/",
   "buff_size": 1024,

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import torch
 import random
 import numpy as np
@@ -40,9 +41,9 @@ class TrainDataset(Dataset):
         # random.seed(0)
         margin = 8
         name_train = self.names_train[item]
-        label_train = self.labels_train_df.at[name_train, "four_label"]
+        # label_train = self.labels_train_df.at[name_train, "four_label"]
+        label_train = self.labels_train_df.at[name_train, "label"]
         path_train = self.data_dir + name_train + ".nii.gz"
-        # image_train = nib.load(path_train).get_fdata().astype(np.int32).transpose(2, 1, 0)
         image_train = load_image(path_train, self.mean, self.std)
         z_train, h_train, w_train = image_train.shape
         image_train = torch.from_numpy(image_train).float()
@@ -99,7 +100,7 @@ class TestDataset(Dataset):
         # random.seed(0)
         margin = 8
         name_test = self.names_test[item]
-        label_test = self.labels_test_df.at[name_test, "four_label"]
+        label_test = self.labels_test_df.at[name_test, "label"]
         patient_id = self.labels_test_df.at[name_test, "patient_id"]
         path_test = self.data_dir + name_test + ".nii.gz"
         # image_test = nib.load(path_test).get_fdata().astype(np.int32).transpose(2, 1, 0)
@@ -143,3 +144,4 @@ class TestDataset(Dataset):
 
     def __len__(self):
         return len(self.names_test)
+

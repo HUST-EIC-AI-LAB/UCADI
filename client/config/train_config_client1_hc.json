@@ -1,0 +1,15 @@
+{
+  "train_data_dir": "data/COVID-19/dataCT/scans_dicom/TongjiHospital/Converted_NIFTI/",
+  "train_df_csv": "hc_utils/train_subset.csv",
+  "labels_train_df_csv": "hc_utils/train_subset.csv",
+  "test_data_dir": "data/COVID-19/dataCT/scans_dicom/TongjiHospital/Converted_NIFTI/",
+  "test_df_csv": "hc_utils/test_subset.csv",
+  "labels_test_df_csv": "hc_utils/test_subset.csv",
+  "use_cuda": true,
+  "epoch": 101,
+  "train_batch_size": 4,
+  "test_batch_size": 2,
+  "num_workers": 12,
+  "lr": 0.015,
+  "momentum": 0.9
+}

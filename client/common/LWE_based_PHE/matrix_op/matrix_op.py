@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import torch
 import matrix_op_cuda
 

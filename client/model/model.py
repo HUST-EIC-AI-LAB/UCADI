@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
+import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.checkpoint import checkpoint
 from dropblock import DropBlock3D, LinearScheduler
+from torch.utils.checkpoint import checkpoint
 
 config = {
     "act_fn": lambda: nn.LeakyReLU(0.1, inplace=True),
@@ -99,7 +101,7 @@ class DenseNet(nn.Module):
         input_channels = 1
         conv_channels = 32
         down_structure = [2, 2, 2]
-        output_channels = 4
+        output_channels = 4  # 2
         act_fn = config["act_fn"]
         norm_fn = config["norm_fn"]
         self.features = nn.Sequential()
@@ -111,7 +113,7 @@ class DenseNet(nn.Module):
             DropBlock3D(drop_prob=0., block_size=5),
             start_value=0.,
             stop_value=0.5,
-            nr_steps=5e3
+            nr_steps=5000
         )
 
         channels = conv_channels
@@ -135,11 +137,8 @@ class DenseNet(nn.Module):
         batch_size, _, z, h, w = x.size()
 
         features = self.dropblock(self.features(x))
-        # print("features", features.size())
         pooled = F.adaptive_avg_pool3d(features, 1).view(batch_size, -1)
-        # print("pooled", pooled.size())
         scores = self.classifier(pooled)
-        # print("scored", scores.size())
 
         if len(return_opts) == 0:
             return scores

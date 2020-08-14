@@ -1,0 +1,14 @@
+# PyTorch 1.6.0, CUDA 10.1, CUDNN 7
+
+six>=1.14.0
+pytz>=2019.3
+numpy>=1.17.0
+pandas>=1.0.3
+Pillow>=7.1.1
+future>=0.18.2
+nibabel==3.0.2
+dropblock>=0.3.0
+SimpleITK>=1.2.4
+protobuf>=3.11.3
+tensorboardX>=2.0
+python-dateutil>=2.8.1

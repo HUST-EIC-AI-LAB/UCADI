@@ -1,14 +1,14 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import os
+import pdb
 import json
 import torch
 import logging
 import threading
 from time import sleep
+from aggregation import aggregateWeight, getWeightList
 from socket import socket, SOL_SOCKET, SO_REUSEADDR, AF_INET, SOCK_STREAM
-
 from common.tcp_utils import send_head_dir, send_file, recv_head_dir, recv_and_write_file
-from server.aggregation import aggregateWeight, getWeightList
 
 
 class FL_Server(object):
@@ -24,30 +24,21 @@ class FL_Server(object):
 
         self.ip_port = (self.configs["ip"], self.configs["recv_port"])
         self.recv_socket = socket(AF_INET, SOCK_STREAM)
-
         self.clients_status = {}
         self.lock = threading.Lock()
-        self.finish = False
-        self.max_delay = 10000
-
-        # Set up Clients status
-        # -1 代表未参与训练（未拿模型）; 0 代表 正在训练; 1 代表训练完毕（已发送新模型）
-        # -1 means no training (no model); 0 means training in process;
-        # 1 means training completed (new model has been sent)
-        for client in self.all_clients:
-            self.clients_status[client] = -1
-
-        # self.recv_ip_port = (self.configs["ip"], self.configs["recv_port"])
-        # self.send_ip_port = (self.configs["ip"], self.configs["send_port"])
-        # self.recv_socket = socket(AF_INET, SOCK_STREAM)
-
-        self.clients_ip_port = []  # 注册时写入
-        self.n_clients = 0  # 注册时写入
-
-        # some configurations about models
+        self.finish, self.max_delay = False, 10000
+        self.clients_ip_port, self.n_clients = [], 0
         self.map_loc = torch.device('cuda')
         self.model_path = self.configs['weight_path']
-        self.client_weight_dir = self.configs['client_weight_dic']
+        self.merge_weight_dir = self.configs['merge_model_dir']
+        self.client_weight_dir = self.configs['client_weight_dir']
+        os.makedirs(self.merge_weight_dir, exist_ok=True)
+        os.makedirs(self.client_weight_dir, exist_ok=True)
+        # -1: no active training process;
+        # 0: training in process;
+        # 1: training completed;
+        for client in self.all_clients:
+            self.clients_status[client] = -1
 
     def set_map_loc(self, device):
         if device not in ['cuda', 'cpu']:
@@ -94,19 +85,18 @@ class FL_Server(object):
         self.finish = True
         sleep(15)
         exit()
-        # self.recv_socket.close()
 
     def register(self, conn, head_dir):
 
-        username = head_dir['username']
-        password = head_dir['password']
-
+        username, password = head_dir['username'], head_dir['password']
         if username not in self.all_clients or password != self.all_clients[username]:
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
         else:
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
             self.logger.info(username + " successfully registered!")
+            self.logger.info("Wait a bit longer for other clients to join.")
             send_file(conn=conn, file_path=self.configs["model_path"], new_file_name=None)
+            sleep(20)
 
     def send_model(self, conn, head_dir, _model_path=None):
         username = head_dir["username"]
@@ -117,15 +107,11 @@ class FL_Server(object):
         else:
             try:
                 if status == -1:
-                    self.logger.info("send model to " + username + "...")
                     send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
-                    if _model_path is None:
-                        model_path = self.model_path
-                    else:
-                        model_path = _model_path
+                    model_path = self.model_path if _model_path is None else _model_path
                     send_file(conn=conn, file_path=model_path, new_file_name=None)
                     self.clients_status[username] = 0
-                    self.logger.info("send model to " + username + "!")
+                    self.logger.info("sent model to " + username)
                 else:
                     send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
                     self.clients_status[username] = -1
@@ -140,54 +126,40 @@ class FL_Server(object):
             send_head_dir(conn=conn, head_dir=json.dumps({'msg': "error"}))
         else:
             try:
-                self.logger.info("receive moedel from " + username + "...")
                 send_head_dir(conn=conn, head_dir=json.dumps({'msg': "ok"}))
                 recv_and_write_file(conn=conn, file_dir=self.client_weight_dir,
                                     buff_size=self.configs['buff_size'])
                 self.clients_status[username] = 1
-                self.logger.info("receive model from " + username + ", over!")
+                self.logger.info("received model from " + username)
             finally:
                 self.lock.release()
 
     def aggregation(self, client_models_dir='./model/client_model/',):
         """
-        weighted aggregation
+        simple summation aggregation over weighted parameters from clients
         :param client_models_dir: store the model_weight & model_state_dict
-        :return: aggregated model state_dict
+        :return: aggregated model state_dict (in list)
         """
         print("*** aggregation begin ***")
-
-        weight_dict_list, weight_sum, client_num = getWeightList(weights_store_directory=client_models_dir,
-                                                                 map_loc=self.map_loc)
-
-        new_parm = aggregateWeight(weightDictList=weight_dict_list,)
-
-        return new_parm, weight_sum, client_num
+        weightDictList, weightList, client_num = getWeightList(client_models_dir, self.map_loc)
+        new_parm = aggregateWeight(weightDictList, weightList)
+        return new_parm, sum(weightList), client_num
 
     def pack_param(self, _model_state, _client_weight, _client_num,  save_path=None):
         ob = {"model_state_dict": _model_state,
               "client_weight": _client_weight,
               "client_num": _client_num}
-
-        if save_path is not None:
-            torch.save(ob, save_path)
-        else:
-            torch.save(ob, self.configs["weight_path"])
+        torch.save(ob, save_path) if save_path is not None else torch.save(ob, self.model_path)
 
     @staticmethod
     def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
-        state = ob['model_state_dict']
-        client_weight = ob['client_weight']
-
-        return state, client_weight
+        return ob['model_state_dict'], ob['client_weight']
 
     @staticmethod
     def flush_client_weight_dir(client_models_dir='./model/client_model/'):
-        """Clean up all files within the client_model_dir
-        """
+        """Clean up all files within the client_model_dir"""
         file_list = os.listdir(client_models_dir)
         for i in range(len(file_list)):
-            filePath = os.path.join(client_models_dir, file_list[i])
-            os.remove(filePath)
-        print("all .pth files removed")
+            os.remove(os.path.join(client_models_dir, file_list[i]))
+        print("all clients .pth caches removed")

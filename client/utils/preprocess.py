@@ -1,8 +1,7 @@
-import numpy as np
-import SimpleITK as sitk 
-import nibabel as nib
-import os 
+# -*- coding: utf-8 -*-
+import os
 import argparse
+import SimpleITK as sitk
 from multiprocessing import Pool
 
 def write_image(image, path):
@@ -22,58 +21,64 @@ def read_dicom(path):
 
 
 def read_image(path):
+    """Load DICOM Images as Numpy Array"""
     reader = read_dicom(path)   
     image = reader.Execute()
-    # z, y, x
-    image_array = sitk.GetArrayFromImage(image)
+    image_array = sitk.GetArrayFromImage(image)  # z, y, x
     return image_array
 
 
 def preprocess(data_list):
-    save_root = "/mnt/data/zxy/dataset/"
-    image_name, image_path = data_list
+    """Convert DICOM Images to NIFTI Images"""
+    
+    image_name, image_path, save_root = data_list
     try:
         image = read_image(image_path)
         z, y, x = image.shape
         if z > 15 and y == 512 and x == 512:
-            print("z {}, y {}, z {}".format(z, y, x))
+            print("z {}, y {}, x {}".format(z, y, x))
             write_image(image, save_root + "{}.nii.gz".format(str(image_name)))
             print("{} finished".format(image_name))
     except:
+        # which means the images has wrong size
         with open("failed_pre_norm.txt", "a") as f:
             f.write(image_name + "\n")
         print("{} failed".format(image_name) + "\n")
 
     
-def gen_path(data_dir):   
+def gen_path(save_root, data_dir):
+    """Generate File Lists of DICOM Images Stores at Various Locations"""
     image_list = []
-    len_thresh = len(data_dir.split("/")) + 4
+    # TJ-N1-14/scans/204-unknown/resources/DICOM/files
+    # len_thresh = len(data_dir.split("/")) + 4
+    len_thresh = len(data_dir.split("/")) + 5  
+    # adjust this based on your own data stroage structure
     for root, dirs, files in os.walk(data_dir):
         len_split = len(root.split("/"))
-        print(len_split, root)
         if len_split == len_thresh:
-            dir_name = root.split("/")[-4]
+            # dir_name = root.split("/")[-4]
+            dir_name = root.split("/")[-2]
             if dir_name == "DICOM" or dir_name == "DICOMA" or dir_name == "DICOMDIS":
-                image_name = root.split("/")[-5] + "_" + root.split("/")[-3] + "_" + root.split("/")[-1]
+                # image_name = root.split("/")[-5] + "_" + root.split("/")[-3] + "_" + root.split("/")[-1]
+                image_name = root.split("/")[-6]
                 print(image_name, root)
-                image_list.append([image_name, root])    
+                image_list.append([image_name, root, save_root])    
     return image_list
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='ncp')
-    parser.add_argument('--input', default='/mnt/data/zxy/ct_data/', type=str, metavar='SAVE',
-                        help='directory to save dicom data (default: none)')
-    parser.add_argument('--output', default='/mnt/data/zxy/dataset/', type=str, metavar='SAVE',
-                        help='directory to save nii.gz data (default: none)')
-    
-    global args
+    # /mnt/data/zxy/ct_data/
+    parser.add_argument('--input', type=str, metavar='SAVE', help='directory to save dicom data (default: none)')
+    # /mnt/data/zxy/dataset/
+    parser.add_argument('--output', type=str, metavar='SAVE', help='directory to save nii.gz data (default: none)')
+
     args = parser.parse_args()
     save_root = args.output
     if not os.path.exists(save_root):
         os.makedirs(save_root)
     raw_data_dir = args.input
-    data_lists = gen_path(raw_data_dir)
+    data_lists = gen_path(save_root, raw_data_dir)
 
     if os.path.exists("failed_pre_norm.txt"):
         os.remove("failed_pre_norm.txt")
