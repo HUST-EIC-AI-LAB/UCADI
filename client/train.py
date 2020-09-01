@@ -73,7 +73,7 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 if __name__ == "__main__":
 
     with open('./config/train_config_client1.json') as j:
-    # with open('./config/train_config_client1_hc.json') as j:
+    # with open('./config/train_config_client2_cam.json') as j:
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
