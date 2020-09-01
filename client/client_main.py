@@ -121,9 +121,9 @@ if __name__ == '__main__':
 
         for key in dec_model_state.keys():
             if epoch_num == 0:  # first aggregation is simple addition
-                dec_model_state[key] = dec_model_state[key] / _client_num
+                dec_model_state[key] = dec_model_state[key] 
             else:   # later aggregation is weight summation
-                dec_model_state[key] = dec_model_state[key]
+                dec_model_state[key] = dec_model_state[key] / _client_num
         torch.save(dec_model_state, './model/{}_current.pth'.format(client.configs['username']))
         temp_key = list(dec_model_state.keys())[0]
         print("After Decryption\n", dec_model_state[temp_key][0])
