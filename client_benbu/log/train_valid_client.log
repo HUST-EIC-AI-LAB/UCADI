@@ -1,0 +1,464 @@
+After Decryption
+ tensor([[[[-0.3151, -0.3174,  0.0299],
+          [-0.3790,  0.1291, -0.1074],
+          [-0.2448,  0.0397,  0.0316]],
+
+         [[-0.3164, -0.3288,  0.1984],
+          [-0.0686, -0.1886, -0.3688],
+          [ 0.4779, -0.3774,  0.2629]],
+
+         [[ 0.4301, -0.4077, -0.4340],
+          [-0.3834, -0.1350,  0.1042],
+          [-0.3681, -0.2762, -0.3685]]]], device='cuda:0')
+0 epoch, 1 iter, loss 0.21163319051265717
+0 epoch, 2 iter, loss 0.43796756863594055
+0 epoch, 3 iter, loss 0.23873154819011688
+0 epoch, 4 iter, loss 0.3448771834373474
+0 epoch, 5 iter, loss 0.42058610916137695
+0 epoch, 6 iter, loss 0.33586135506629944
+0 epoch, 7 iter, loss 0.39641010761260986
+0 epoch, 8 iter, loss 0.3839242160320282
+0 epoch, 9 iter, loss 0.7579391598701477
+0 epoch, 10 iter, loss 0.44765231013298035
+0 epoch, 11 iter, loss 0.24879983067512512
+0 epoch, 12 iter, loss 0.7518009543418884
+0 epoch, 13 iter, loss 0.7314561605453491
+0 epoch, 14 iter, loss 0.35176366567611694
+0 epoch, 15 iter, loss 0.4163171648979187
+0 epoch, 16 iter, loss 0.49006372690200806
+0 epoch, 17 iter, loss 0.45899033546447754
+0 epoch, 18 iter, loss 0.29906871914863586
+0 epoch, 19 iter, loss 0.3386859893798828
+0 epoch, 20 iter, loss 0.9660821557044983
+0 epoch, 21 iter, loss 0.4886651933193207
+0 epoch, 22 iter, loss 0.7095232605934143
+0 epoch, 23 iter, loss 0.38312727212905884
+0 epoch, 24 iter, loss 0.6004363894462585
+0 epoch, 25 iter, loss 0.2740488648414612
+0 epoch, 26 iter, loss 0.3218819499015808
+0 epoch, 27 iter, loss 0.24013268947601318
+0 epoch, 28 iter, loss 0.43914252519607544
+0 epoch, 29 iter, loss 0.4265861213207245
+0 epoch, 30 iter, loss 0.7322809100151062
+0 epoch, 31 iter, loss 0.7722713947296143
+0 epoch, 32 iter, loss 0.4301365315914154
+0 epoch, 33 iter, loss 0.24046838283538818
+0 epoch, 34 iter, loss 0.1339128464460373
+0 epoch, 35 iter, loss 0.3020136058330536
+0 epoch, 36 iter, loss 0.4804067611694336
+0 epoch, 37 iter, loss 0.09278630465269089
+0 epoch, 38 iter, loss 0.5059672594070435
+0 epoch, 39 iter, loss 0.27013903856277466
+0 epoch, 40 iter, loss 0.37774375081062317
+0 epoch, 41 iter, loss 0.45713526010513306
+0 epoch, 42 iter, loss 0.6238064169883728
+0 epoch, 43 iter, loss 0.2501274049282074
+0 epoch, 44 iter, loss 0.4174513816833496
+0 epoch, 45 iter, loss 0.40361833572387695
+0 epoch, 46 iter, loss 0.3241861164569855
+0 epoch, 47 iter, loss 0.3431087136268616
+0 epoch, 48 iter, loss 0.5341694355010986
+0 epoch, 49 iter, loss 0.21034309267997742
+0 epoch, 50 iter, loss 0.5223956108093262
+0 epoch, 51 iter, loss 0.17950966954231262
+0 epoch, 52 iter, loss 0.5799313187599182
+0 epoch, 53 iter, loss 0.42740076780319214
+0 epoch, 54 iter, loss 0.4523817300796509
+0 epoch, 55 iter, loss 0.5274204015731812
+0 epoch, 56 iter, loss 0.17778049409389496
+0 epoch, 57 iter, loss 0.5006951689720154
+0 epoch, 58 iter, loss 0.32596465945243835
+0 epoch, 59 iter, loss 0.7283334136009216
+0 epoch, 60 iter, loss 0.6176758408546448
+0 epoch, 61 iter, loss 0.9343476295471191
+0 epoch, 62 iter, loss 0.5172125101089478
+0 epoch, 63 iter, loss 0.5486472845077515
+0 epoch, 64 iter, loss 0.36922526359558105
+0 epoch, 65 iter, loss 0.4946620762348175
+0 epoch, 66 iter, loss 0.7522592544555664
+0 epoch, 67 iter, loss 0.31543320417404175
+0 epoch, 68 iter, loss 0.4626220166683197
+0 epoch, 69 iter, loss 0.39017853140830994
+0 epoch, 70 iter, loss 0.40747544169425964
+0 epoch, 71 iter, loss 0.6374439597129822
+0 epoch, 72 iter, loss 0.9062095284461975
+0 epoch, 73 iter, loss 0.9551061391830444
+0 epoch, 74 iter, loss 0.22332394123077393
+0 epoch, 75 iter, loss 0.26566988229751587
+0 epoch, 76 iter, loss 0.3127042055130005
+0 epoch, 77 iter, loss 0.8274332880973816
+0 epoch, 78 iter, loss 0.31148669123649597
+0 epoch, 79 iter, loss 0.6426154971122742
+0 epoch, 80 iter, loss 0.3627541661262512
+0 epoch, 81 iter, loss 0.5701415538787842
+0 epoch, 82 iter, loss 0.5108698606491089
+0 epoch, 83 iter, loss 0.45764362812042236
+0 epoch, 84 iter, loss 0.7326639294624329
+0 epoch, 85 iter, loss 0.16530337929725647
+0 epoch, 86 iter, loss 0.9031140208244324
+0 epoch, 87 iter, loss 0.4359406530857086
+0 epoch, 88 iter, loss 0.5789446234703064
+0 epoch, 89 iter, loss 0.5814940333366394
+After training, some updated model parameters: 
+tensor([[[[-0.3151, -0.3175,  0.0299],
+          [-0.3791,  0.1291, -0.1074],
+          [-0.2449,  0.0396,  0.0315]],
+
+         [[-0.3164, -0.3288,  0.1984],
+          [-0.0687, -0.1886, -0.3688],
+          [ 0.4779, -0.3775,  0.2629]],
+
+         [[ 0.4300, -0.4077, -0.4340],
+          [-0.3834, -0.1350,  0.1042],
+          [-0.3681, -0.2762, -0.3684]]]], device='cuda:0')
+*****************************
+*****************************
+
+After Decryption
+ tensor([[[[-0.0788, -0.0794,  0.0075],
+          [-0.0948,  0.0323, -0.0268],
+          [-0.0612,  0.0099,  0.0079]],
+
+         [[-0.0791, -0.0822,  0.0496],
+          [-0.0172, -0.0472, -0.0922],
+          [ 0.1195, -0.0944,  0.0657]],
+
+         [[ 0.1075, -0.1019, -0.1085],
+          [-0.0959, -0.0338,  0.0261],
+          [-0.0920, -0.0691, -0.0921]]]], device='cuda:0')
+1 epoch, 1 iter, loss 1.1901729106903076
+1 epoch, 2 iter, loss 1.1186550855636597
+1 epoch, 3 iter, loss 1.1783918142318726
+1 epoch, 4 iter, loss 1.1644822359085083
+1 epoch, 5 iter, loss 1.1964491605758667
+1 epoch, 6 iter, loss 1.1780692338943481
+1 epoch, 7 iter, loss 1.1968098878860474
+1 epoch, 8 iter, loss 1.1416631937026978
+1 epoch, 9 iter, loss 1.131435751914978
+1 epoch, 10 iter, loss 1.1678593158721924
+1 epoch, 11 iter, loss 1.2044756412506104
+1 epoch, 12 iter, loss 1.1992133855819702
+1 epoch, 13 iter, loss 1.2205212116241455
+1 epoch, 14 iter, loss 1.133189082145691
+1 epoch, 15 iter, loss 1.1467218399047852
+1 epoch, 16 iter, loss 1.1655114889144897
+1 epoch, 17 iter, loss 1.1608695983886719
+1 epoch, 18 iter, loss 1.2199805974960327
+1 epoch, 19 iter, loss 1.1696557998657227
+1 epoch, 20 iter, loss 1.142258882522583
+1 epoch, 21 iter, loss 1.134256362915039
+1 epoch, 22 iter, loss 1.1692043542861938
+1 epoch, 23 iter, loss 1.176316261291504
+1 epoch, 24 iter, loss 1.1332826614379883
+1 epoch, 25 iter, loss 1.1171603202819824
+1 epoch, 26 iter, loss 1.1559334993362427
+1 epoch, 27 iter, loss 1.1716020107269287
+1 epoch, 28 iter, loss 1.1709465980529785
+1 epoch, 29 iter, loss 1.2227973937988281
+1 epoch, 30 iter, loss 1.1045863628387451
+1 epoch, 31 iter, loss 1.1513440608978271
+1 epoch, 32 iter, loss 1.1470069885253906
+1 epoch, 33 iter, loss 1.1712021827697754
+1 epoch, 34 iter, loss 1.144931674003601
+1 epoch, 35 iter, loss 1.233445644378662
+1 epoch, 36 iter, loss 1.1731255054473877
+1 epoch, 37 iter, loss 1.1627252101898193
+1 epoch, 38 iter, loss 1.1702765226364136
+1 epoch, 39 iter, loss 1.1300761699676514
+1 epoch, 40 iter, loss 1.1585050821304321
+1 epoch, 41 iter, loss 1.125048279762268
+1 epoch, 42 iter, loss 1.145869493484497
+1 epoch, 43 iter, loss 1.1146844625473022
+1 epoch, 44 iter, loss 1.2119263410568237
+1 epoch, 45 iter, loss 1.192134141921997
+1 epoch, 46 iter, loss 1.1599280834197998
+1 epoch, 47 iter, loss 1.1576334238052368
+1 epoch, 48 iter, loss 1.110639214515686
+1 epoch, 49 iter, loss 1.1310213804244995
+1 epoch, 50 iter, loss 1.1462018489837646
+1 epoch, 51 iter, loss 1.1584266424179077
+1 epoch, 52 iter, loss 1.1140780448913574
+1 epoch, 53 iter, loss 1.1428465843200684
+1 epoch, 54 iter, loss 1.141402006149292
+1 epoch, 55 iter, loss 1.1011934280395508
+1 epoch, 56 iter, loss 1.171587347984314
+1 epoch, 57 iter, loss 1.1515334844589233
+1 epoch, 58 iter, loss 1.1089051961898804
+1 epoch, 59 iter, loss 1.13054358959198
+1 epoch, 60 iter, loss 1.1454538106918335
+1 epoch, 61 iter, loss 1.1301318407058716
+1 epoch, 62 iter, loss 1.127096176147461
+1 epoch, 63 iter, loss 1.1337910890579224
+1 epoch, 64 iter, loss 1.1910749673843384
+1 epoch, 65 iter, loss 1.1328996419906616
+1 epoch, 66 iter, loss 1.1348015069961548
+1 epoch, 67 iter, loss 1.155713677406311
+1 epoch, 68 iter, loss 1.0992854833602905
+1 epoch, 69 iter, loss 1.112372636795044
+1 epoch, 70 iter, loss 1.1513136625289917
+1 epoch, 71 iter, loss 1.10429847240448
+1 epoch, 72 iter, loss 1.1397396326065063
+1 epoch, 73 iter, loss 1.0880699157714844
+1 epoch, 74 iter, loss 1.1531870365142822
+1 epoch, 75 iter, loss 1.1294395923614502
+1 epoch, 76 iter, loss 1.096194863319397
+1 epoch, 77 iter, loss 1.1468536853790283
+1 epoch, 78 iter, loss 1.1510038375854492
+1 epoch, 79 iter, loss 1.1044976711273193
+1 epoch, 80 iter, loss 1.184584140777588
+1 epoch, 81 iter, loss 1.1102995872497559
+1 epoch, 82 iter, loss 1.0971579551696777
+1 epoch, 83 iter, loss 1.1468127965927124
+1 epoch, 84 iter, loss 1.0760964155197144
+1 epoch, 85 iter, loss 1.1299649477005005
+1 epoch, 86 iter, loss 1.1176782846450806
+1 epoch, 87 iter, loss 1.1951996088027954
+1 epoch, 88 iter, loss 1.1429141759872437
+1 epoch, 89 iter, loss 1.2078951597213745
+After training, some updated model parameters: 
+tensor([[[[-0.0788, -0.0793,  0.0075],
+          [-0.0948,  0.0323, -0.0269],
+          [-0.0612,  0.0099,  0.0078]],
+
+         [[-0.0791, -0.0822,  0.0496],
+          [-0.0172, -0.0471, -0.0922],
+          [ 0.1195, -0.0944,  0.0656]],
+
+         [[ 0.1075, -0.1019, -0.1085],
+          [-0.0959, -0.0338,  0.0260],
+          [-0.0920, -0.0691, -0.0922]]]], device='cuda:0')
+*****************************
+*****************************
+
+After Decryption
+ tensor([[[[-0.0197, -0.0198,  0.0019],
+          [-0.0237,  0.0081, -0.0067],
+          [-0.0153,  0.0025,  0.0020]],
+
+         [[-0.0198, -0.0205,  0.0124],
+          [-0.0043, -0.0118, -0.0231],
+          [ 0.0299, -0.0236,  0.0164]],
+
+         [[ 0.0269, -0.0255, -0.0271],
+          [-0.0240, -0.0084,  0.0065],
+          [-0.0230, -0.0173, -0.0231]]]], device='cuda:0')
+2 epoch, 1 iter, loss 1.3778481483459473
+2 epoch, 2 iter, loss 1.38007652759552
+2 epoch, 3 iter, loss 1.3831053972244263
+2 epoch, 4 iter, loss 1.3773422241210938
+2 epoch, 5 iter, loss 1.3838459253311157
+2 epoch, 6 iter, loss 1.3863897323608398
+2 epoch, 7 iter, loss 1.3772553205490112
+2 epoch, 8 iter, loss 1.376037836074829
+2 epoch, 9 iter, loss 1.3806394338607788
+2 epoch, 10 iter, loss 1.3851275444030762
+2 epoch, 11 iter, loss 1.3779319524765015
+2 epoch, 12 iter, loss 1.3809263706207275
+2 epoch, 13 iter, loss 1.381752610206604
+2 epoch, 14 iter, loss 1.3836421966552734
+2 epoch, 15 iter, loss 1.377647042274475
+2 epoch, 16 iter, loss 1.3804576396942139
+2 epoch, 17 iter, loss 1.3804148435592651
+2 epoch, 18 iter, loss 1.387300968170166
+2 epoch, 19 iter, loss 1.378941297531128
+2 epoch, 20 iter, loss 1.3774611949920654
+2 epoch, 21 iter, loss 1.378693699836731
+2 epoch, 22 iter, loss 1.3828845024108887
+2 epoch, 23 iter, loss 1.3807405233383179
+2 epoch, 24 iter, loss 1.3838576078414917
+2 epoch, 25 iter, loss 1.38075590133667
+2 epoch, 26 iter, loss 1.3896480798721313
+2 epoch, 27 iter, loss 1.3822863101959229
+2 epoch, 28 iter, loss 1.3830015659332275
+2 epoch, 29 iter, loss 1.3865894079208374
+2 epoch, 30 iter, loss 1.3823115825653076
+2 epoch, 31 iter, loss 1.3775861263275146
+2 epoch, 32 iter, loss 1.3840476274490356
+2 epoch, 33 iter, loss 1.3854739665985107
+2 epoch, 34 iter, loss 1.3830511569976807
+2 epoch, 35 iter, loss 1.3901209831237793
+2 epoch, 36 iter, loss 1.3798468112945557
+2 epoch, 37 iter, loss 1.3786988258361816
+2 epoch, 38 iter, loss 1.3820112943649292
+2 epoch, 39 iter, loss 1.3824443817138672
+2 epoch, 40 iter, loss 1.3830636739730835
+2 epoch, 41 iter, loss 1.379716157913208
+2 epoch, 42 iter, loss 1.3816063404083252
+2 epoch, 43 iter, loss 1.3808530569076538
+2 epoch, 44 iter, loss 1.382793664932251
+2 epoch, 45 iter, loss 1.3805394172668457
+2 epoch, 46 iter, loss 1.3845888376235962
+2 epoch, 47 iter, loss 1.3790196180343628
+2 epoch, 48 iter, loss 1.376871943473816
+2 epoch, 49 iter, loss 1.3764055967330933
+2 epoch, 50 iter, loss 1.3775177001953125
+2 epoch, 51 iter, loss 1.3829494714736938
+2 epoch, 52 iter, loss 1.3818706274032593
+2 epoch, 53 iter, loss 1.3769742250442505
+2 epoch, 54 iter, loss 1.3792468309402466
+2 epoch, 55 iter, loss 1.3776417970657349
+2 epoch, 56 iter, loss 1.377426266670227
+2 epoch, 57 iter, loss 1.3791974782943726
+2 epoch, 58 iter, loss 1.3781559467315674
+2 epoch, 59 iter, loss 1.3842222690582275
+2 epoch, 60 iter, loss 1.3764806985855103
+2 epoch, 61 iter, loss 1.378338098526001
+2 epoch, 62 iter, loss 1.3785183429718018
+2 epoch, 63 iter, loss 1.3749825954437256
+2 epoch, 64 iter, loss 1.3812967538833618
+2 epoch, 65 iter, loss 1.3727641105651855
+2 epoch, 66 iter, loss 1.38327157497406
+2 epoch, 67 iter, loss 1.3800406455993652
+2 epoch, 68 iter, loss 1.3777092695236206
+2 epoch, 69 iter, loss 1.3733004331588745
+2 epoch, 70 iter, loss 1.3811731338500977
+2 epoch, 71 iter, loss 1.3751342296600342
+2 epoch, 72 iter, loss 1.3770889043807983
+2 epoch, 73 iter, loss 1.3816869258880615
+2 epoch, 74 iter, loss 1.3768348693847656
+2 epoch, 75 iter, loss 1.3747996091842651
+2 epoch, 76 iter, loss 1.3760571479797363
+2 epoch, 77 iter, loss 1.375278115272522
+2 epoch, 78 iter, loss 1.3811074495315552
+2 epoch, 79 iter, loss 1.3674194812774658
+2 epoch, 80 iter, loss 1.3776991367340088
+2 epoch, 81 iter, loss 1.3788459300994873
+2 epoch, 82 iter, loss 1.3732399940490723
+2 epoch, 83 iter, loss 1.3777748346328735
+2 epoch, 84 iter, loss 1.3819726705551147
+2 epoch, 85 iter, loss 1.3693149089813232
+2 epoch, 86 iter, loss 1.375388741493225
+2 epoch, 87 iter, loss 1.3665528297424316
+2 epoch, 88 iter, loss 1.3711280822753906
+2 epoch, 89 iter, loss 1.37238347530365
+After training, some updated model parameters: 
+tensor([[[[-0.0197, -0.0198,  0.0019],
+          [-0.0237,  0.0081, -0.0067],
+          [-0.0153,  0.0025,  0.0019]],
+
+         [[-0.0198, -0.0205,  0.0124],
+          [-0.0043, -0.0118, -0.0231],
+          [ 0.0299, -0.0236,  0.0164]],
+
+         [[ 0.0269, -0.0255, -0.0271],
+          [-0.0240, -0.0084,  0.0065],
+          [-0.0230, -0.0173, -0.0231]]]], device='cuda:0')
+*****************************
+*****************************
+
+After Decryption
+ tensor([[[[-0.0049, -0.0050,  0.0005],
+          [-0.0059,  0.0020, -0.0017],
+          [-0.0038,  0.0006,  0.0005]],
+
+         [[-0.0049, -0.0051,  0.0031],
+          [-0.0011, -0.0029, -0.0058],
+          [ 0.0075, -0.0059,  0.0041]],
+
+         [[ 0.0067, -0.0064, -0.0068],
+          [-0.0060, -0.0021,  0.0016],
+          [-0.0057, -0.0043, -0.0058]]]], device='cuda:0')
+3 epoch, 1 iter, loss 1.3855979442596436
+3 epoch, 2 iter, loss 1.3866119384765625
+3 epoch, 3 iter, loss 1.3843830823898315
+3 epoch, 4 iter, loss 1.3850370645523071
+3 epoch, 5 iter, loss 1.3860448598861694
+3 epoch, 6 iter, loss 1.3844515085220337
+3 epoch, 7 iter, loss 1.385679006576538
+3 epoch, 8 iter, loss 1.3861397504806519
+3 epoch, 9 iter, loss 1.3819772005081177
+3 epoch, 10 iter, loss 1.3865795135498047
+3 epoch, 11 iter, loss 1.3849503993988037
+3 epoch, 12 iter, loss 1.3845106363296509
+3 epoch, 13 iter, loss 1.3859318494796753
+3 epoch, 14 iter, loss 1.3839246034622192
+3 epoch, 15 iter, loss 1.3829706907272339
+3 epoch, 16 iter, loss 1.3862688541412354
+3 epoch, 17 iter, loss 1.3857942819595337
+3 epoch, 18 iter, loss 1.3831202983856201
+3 epoch, 19 iter, loss 1.3837229013442993
+3 epoch, 20 iter, loss 1.3838998079299927
+3 epoch, 21 iter, loss 1.3825981616973877
+3 epoch, 22 iter, loss 1.384779453277588
+3 epoch, 23 iter, loss 1.385941505432129
+3 epoch, 24 iter, loss 1.3848363161087036
+3 epoch, 25 iter, loss 1.3826684951782227
+3 epoch, 26 iter, loss 1.384139895439148
+3 epoch, 27 iter, loss 1.3862131834030151
+3 epoch, 28 iter, loss 1.384833574295044
+3 epoch, 29 iter, loss 1.3835303783416748
+3 epoch, 30 iter, loss 1.382391333580017
+3 epoch, 31 iter, loss 1.3851416110992432
+3 epoch, 32 iter, loss 1.3850526809692383
+3 epoch, 33 iter, loss 1.3852139711380005
+3 epoch, 34 iter, loss 1.3822031021118164
+3 epoch, 35 iter, loss 1.381181240081787
+3 epoch, 36 iter, loss 1.3838671445846558
+3 epoch, 37 iter, loss 1.3834552764892578
+3 epoch, 38 iter, loss 1.386745810508728
+3 epoch, 39 iter, loss 1.385189175605774
+3 epoch, 40 iter, loss 1.3830405473709106
+3 epoch, 41 iter, loss 1.387093186378479
+3 epoch, 42 iter, loss 1.3831897974014282
+3 epoch, 43 iter, loss 1.3809691667556763
+3 epoch, 44 iter, loss 1.3867143392562866
+3 epoch, 45 iter, loss 1.3842573165893555
+3 epoch, 46 iter, loss 1.3838226795196533
+3 epoch, 47 iter, loss 1.3846617937088013
+3 epoch, 48 iter, loss 1.3840945959091187
+3 epoch, 49 iter, loss 1.3862165212631226
+3 epoch, 50 iter, loss 1.3797483444213867
+3 epoch, 51 iter, loss 1.384725570678711
+3 epoch, 52 iter, loss 1.3838995695114136
+3 epoch, 53 iter, loss 1.3807469606399536
+3 epoch, 54 iter, loss 1.386389970779419
+3 epoch, 55 iter, loss 1.3834075927734375
+3 epoch, 56 iter, loss 1.3864835500717163
+3 epoch, 57 iter, loss 1.3841255903244019
+3 epoch, 58 iter, loss 1.3782641887664795
+3 epoch, 59 iter, loss 1.3861851692199707
+3 epoch, 60 iter, loss 1.3850010633468628
+3 epoch, 61 iter, loss 1.3871363401412964
+3 epoch, 62 iter, loss 1.3845129013061523
+3 epoch, 63 iter, loss 1.3820815086364746
+3 epoch, 64 iter, loss 1.377475380897522
+3 epoch, 65 iter, loss 1.3836243152618408
+3 epoch, 66 iter, loss 1.3857271671295166
+3 epoch, 67 iter, loss 1.3798110485076904
+3 epoch, 68 iter, loss 1.3796178102493286
+3 epoch, 69 iter, loss 1.3843237161636353
+3 epoch, 70 iter, loss 1.3851661682128906
+3 epoch, 71 iter, loss 1.3823834657669067
+3 epoch, 72 iter, loss 1.3788762092590332
+3 epoch, 73 iter, loss 1.3842151165008545
+3 epoch, 74 iter, loss 1.37959885597229
+3 epoch, 75 iter, loss 1.3868993520736694
+3 epoch, 76 iter, loss 1.3831480741500854
+3 epoch, 77 iter, loss 1.3783067464828491
+3 epoch, 78 iter, loss 1.3863282203674316
+3 epoch, 79 iter, loss 1.3823111057281494
+3 epoch, 80 iter, loss 1.3837343454360962
+3 epoch, 81 iter, loss 1.380825161933899
+3 epoch, 82 iter, loss 1.3838728666305542
+3 epoch, 83 iter, loss 1.3878487348556519
+3 epoch, 84 iter, loss 1.3844757080078125
+3 epoch, 85 iter, loss 1.3885434865951538
+3 epoch, 86 iter, loss 1.381198763847351
+3 epoch, 87 iter, loss 1.3856061697006226
+3 epoch, 88 iter, loss 1.3793659210205078
+3 epoch, 89 iter, loss 1.3788883686065674
+After training, some updated model parameters: 
+tensor([[[[-0.0049, -0.0050,  0.0005],
+          [-0.0059,  0.0020, -0.0017],
+          [-0.0038,  0.0006,  0.0005]],
+
+         [[-0.0049, -0.0051,  0.0031],
+          [-0.0011, -0.0029, -0.0058],
+          [ 0.0075, -0.0059,  0.0041]],
+
+         [[ 0.0067, -0.0064, -0.0068],
+          [-0.0060, -0.0021,  0.0016],
+          [-0.0057, -0.0043, -0.0058]]]], device='cuda:0')
+*****************************
+*****************************
+

@@ -41,8 +41,8 @@ class TrainDataset(Dataset):
         # random.seed(0)
         margin = 8
         name_train = self.names_train[item]
-        # label_train = self.labels_train_df.at[name_train, "four_label"]
-        label_train = self.labels_train_df.at[name_train, "label"]
+        label_train = self.labels_train_df.at[name_train, "four_label"]
+        # label_train = self.labels_train_df.at[name_train, "label"]
         path_train = self.data_dir + name_train + ".nii.gz"
         image_train = load_image(path_train, self.mean, self.std)
         z_train, h_train, w_train = image_train.shape

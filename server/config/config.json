@@ -1,7 +1,7 @@
 {
   "ip": "0.0.0.0",
-  "send_port": 12341,
-  "recv_port": 12342,
+  "send_port": 23332,
+  "recv_port": 23333,
   "clients_path": "./config/clients.json",
   "model_path": "./model/model.py",
   "weight_path": "./model/initial.pth",

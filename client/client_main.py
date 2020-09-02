@@ -19,14 +19,14 @@ from train import train, add_weight_decay
 from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 if __name__ == '__main__':
-
+    print('all start')
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(description='Client Configuration')
     parser.add_argument('--client_config', type=str, default='client1_config.json')
     parser.add_argument('--train_config', type=str, default='train_config_client1.json')
-    parser.add_argument('--logfile', type=str, default='train_valid_client1.log')
+    parser.add_argument('--logfile', type=str, default='train_valid_client1:.log')
     args = parser.parse_args()
 
     # FL_Client() already includes GPU usage
@@ -121,9 +121,9 @@ if __name__ == '__main__':
 
         for key in dec_model_state.keys():
             if epoch_num == 0:  # first aggregation is simple addition
-                dec_model_state[key] = dec_model_state[key] / _client_num
-            else:   # later aggregation is weight summation
                 dec_model_state[key] = dec_model_state[key]
+            else:   # later aggregation is weight summation
+                dec_model_state[key] = dec_model_state[key] / _client_num
         torch.save(dec_model_state, './model/{}_current.pth'.format(client.configs['username']))
         temp_key = list(dec_model_state.keys())[0]
         print("After Decryption\n", dec_model_state[temp_key][0])
