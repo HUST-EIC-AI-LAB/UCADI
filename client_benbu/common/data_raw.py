@@ -4,6 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 import nibabel as nib
+from skimage import transform
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -14,6 +15,9 @@ def load_image(image_path, mean, std, threshold=[-1200, 600]):
     np.clip(image, threshold[0], threshold[1], out=image)
     np.subtract(image, mean, out=image)
     np.divide(image, std, out=image)
+    h_train, w_train, z_train = image.shape
+    if h_train != 512 or w_train != 512:
+        image = transform.resize(image, (512, 512))
     image = image.transpose(2, 1, 0)
     return image
 
