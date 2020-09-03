@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # FL_Client() already includes GPU usage
     client = FL_Client(os.path.join('./config', args.client_config))
     client.start()
-    client.register()
+    # client.register()
 
     ''' === set up training configs and load the model before querying from the server === '''
     with open(os.path.join('./config', args.train_config)) as j:

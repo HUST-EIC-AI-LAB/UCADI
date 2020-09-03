@@ -7,7 +7,7 @@
   "labels_test_df_csv": "hc_utils/cam_subset_test.csv",
   "use_cuda": true,
   "epoch": 101,
-  "train_batch_size": 4,
+  "train_batch_size": 16,
   "test_batch_size": 2,
   "num_workers": 12,
   "lr": 0.015,
