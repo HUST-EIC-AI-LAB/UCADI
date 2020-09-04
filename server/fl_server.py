@@ -26,7 +26,7 @@ class FL_Server(object):
         self.recv_socket = socket(AF_INET, SOCK_STREAM)
         self.clients_status = {}
         self.lock = threading.Lock()
-        self.finish, self.max_delay = False, 10000
+        self.finish, self.max_delay = False, 100
         self.clients_ip_port, self.n_clients = [], 0
         self.map_loc = torch.device('cuda')
         self.model_path = self.configs['weight_path']

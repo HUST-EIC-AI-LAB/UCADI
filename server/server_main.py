@@ -16,13 +16,15 @@ if __name__ == '__main__':
 
     for epoch_num in range(server.configs['iteration']):
         logger.info('***** Current Epoch is {} *****'.format(epoch_num))
+       
         server.max_delay, current_time = 100, time.time()  # set up max_delay time
+       
         while True:
             time.sleep(10)
             n_running, n_finish = server.count_status(0), server.count_status(1)
             logger.info("[epoch " + str(epoch_num) + "] n_running: "
                         + str(n_running) + " , n_finish: " + str(n_finish))
-            if n_finish > 0 and (n_running == 0 or (time.time() - current_time) > server.max_delay):
+            if n_finish > 1 and (n_running == 0 or (time.time() - current_time) > server.max_delay):
                 logger.info("Timeout, not received all clients' parameters, Start Aggregation")
                 break
 

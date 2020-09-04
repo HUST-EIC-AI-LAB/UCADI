@@ -19,14 +19,14 @@ from train import train, add_weight_decay
 from common import TrainDataset, DataLoader, WarmUpLR, Logger
 
 if __name__ == '__main__':
-
+    print('all start')
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(description='Client Configuration')
     parser.add_argument('--client_config', type=str, default='client1_config.json')
     parser.add_argument('--train_config', type=str, default='train_config_client1.json')
-    parser.add_argument('--logfile', type=str, default='train_valid_client1.log')
+    parser.add_argument('--logfile', type=str, default='train_valid_client1:.log')
     args = parser.parse_args()
 
     # FL_Client() already includes GPU usage

@@ -43,7 +43,7 @@ class FL_Client(object):
         send_socket = socket(AF_INET, SOCK_STREAM)
         self.logger.info("registering with server ...")
         try:
-            pdb.set_trace()
+            # pdb.set_trace()
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
@@ -138,6 +138,9 @@ class FL_Client(object):
     @staticmethod
     def unpack_param(_model_param_path):
         ob = torch.load(_model_param_path)
+        print(type(ob))
+        print(len(ob))
+        print(ob[0])
         return ob['model_state_dict'], ob['client_weight'], ob['client_num']
 
     def enc_num(self, num):
