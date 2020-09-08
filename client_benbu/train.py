@@ -73,7 +73,6 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 if __name__ == "__main__":
 
     with open('./config/train_config_client1.json') as j:
-    # with open('./config/train_config_client1_hc.json') as j:
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
@@ -106,8 +105,7 @@ if __name__ == "__main__":
         decrypt_params = decrypt(sk, encrypted_model_weight, client_num, shape_parameter)
         return decrypt_params
 
-    # pdb.set_trace()
-    save_encrypt = True
+    save_encrypt = False
     if save_encrypt:
         encrypt_params = myencrypt(seed=1434, model_weight=model.state_dict())
         _model_Param = {"model_state_dict": encrypt_params,
@@ -116,8 +114,7 @@ if __name__ == "__main__":
 
         torch.save(_model_Param, '../server/model/merge_model/initial.pth')
 
-    # pdb.set_trace()
-    restore = True
+    restore = False
     restore_path = 'model/initial.pth'  # 'model/model_Param_Bob.pth'
     if restore:
         ob = torch.load(restore_path)
@@ -126,20 +123,19 @@ if __name__ == "__main__":
             client_num=1, shape_parameter=torch.load('./config/shape_parameter.pth'))
         model.load_state_dict(decrypt_params)
 
-    # pdb.set_trace()
     iter_per_epoch, warm_epoch = len(train_data_loader), 5
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * warm_epoch)
     train_scheduler = optim.lr_scheduler.CosineAnnealingLR(
         optimizer, (train_config['epoch'] - warm_epoch) * iter_per_epoch)
 
-    logfile = "./train_valid_client1.log"
+    logfile = "./train_local_client1.log"
     os.remove(logfile) if os.path.exists(logfile) else None
     sys.stdout = Logger(logfile)
     log = logging.getLogger()
 
     for epoch_num in range(train_config['epoch']):
 
-        fileName = 'central_model.pth'
+        fileName = 'local_central.pth'
         update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
                         model=model, optimizer=optimizer, log=log, warm_epoch=warm_epoch,
                         epoch=epoch_num, criterion=criterion, warmup_scheduler=warmup_scheduler,
