@@ -1,20 +1,18 @@
-# -*- coding: utf-8 -*-
-import pdb
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dropblock import DropBlock3D, LinearScheduler
 from torch.utils.checkpoint import checkpoint
+from dropblock import DropBlock3D, LinearScheduler
+# Ref: https://github.com/pytorch/vision/blob/master/torchvision/models/densenet.py
 
 config = {
     "act_fn": lambda: nn.LeakyReLU(0.1, inplace=True),
-    "norm_fn": lambda c: nn.BatchNorm3d(num_features=c)
-}
+    "norm_fn": lambda c: nn.BatchNorm3d(num_features=c)}
 
+# wrapper of densenet class, used in client_main.py
 def densenet3d(snapshot=None):
     model = DenseNet()
-    # model = DataParallel(model)
-
     if snapshot is None:
         initialize(model.modules())
         print("Random initialized")
@@ -22,11 +20,12 @@ def densenet3d(snapshot=None):
         state_dict = torch.load(snapshot)
         model.load_state_dict(state_dict)
         print("loads weight from {}".format(snapshot))
-
     return model
 
 
 def initialize(modules):
+    """ Initialize specified layer weights with Kaiming Uniform:
+    ref: https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.kaiming_uniform_ """
     for module in modules:
         if isinstance(module, nn.Conv3d) or isinstance(module, nn.ConvTranspose3d):
             nn.init.kaiming_uniform_(module.weight, mode="fan_in")
@@ -36,10 +35,11 @@ def initialize(modules):
 
 
 class ConvBlock(nn.Sequential):
+    """ 3D Conv Block Module, similar to _DenseLayer() from reference code """
     def __init__(self, in_channels):
         super(ConvBlock, self).__init__()
-        growth_rate = 32
         bottleneck = 4
+        growth_rate = 32
         act_fn = config["act_fn"]
         norm_fn = config["norm_fn"]
 
@@ -57,10 +57,8 @@ class ConvBlock(nn.Sequential):
 
     def forward(self, x):
         super_forward = super(ConvBlock, self).forward
-        residual = x
-        # features = super_forward(x)
-        features = checkpoint(super_forward, x)
-        out = torch.cat([residual, features], 1)
+        features = checkpoint(super_forward, x)  # features = super_forward(x)
+        out = torch.cat([x, features], 1)
         return out
 
     @property
@@ -69,17 +67,16 @@ class ConvBlock(nn.Sequential):
 
 
 class TransmitBlock(nn.Sequential):
+    """ Transmission Block between Different ConvBlock, similar to _Transition()"""
     def __init__(self, in_channels, is_last_layer):
         super(TransmitBlock, self).__init__()
+        compression = 2
         act_fn = config["act_fn"]
         norm_fn = config["norm_fn"]
-        compression = 2
 
         assert in_channels % compression == 0
-
         self.in_channels = in_channels
         self.compression = compression
-
         self.add_module("norm", norm_fn(in_channels))
         self.add_module("act", act_fn())
 
@@ -100,8 +97,8 @@ class DenseNet(nn.Module):
         super(DenseNet, self).__init__()
         input_channels = 1
         conv_channels = 32
-        down_structure = [2, 2, 2]
         output_channels = 4  # 2
+        down_structure = [2, 2, 2]
         act_fn = config["act_fn"]
         norm_fn = config["norm_fn"]
         self.features = nn.Sequential()
@@ -109,15 +106,14 @@ class DenseNet(nn.Module):
                                                         kernel_size=3, stride=1, padding=1, bias=True))
         self.features.add_module("init_norm", norm_fn(conv_channels))
         self.features.add_module("init_act", act_fn())
+        self.features.add_module('drop_block', DropBlock3D(drop_prob=0.1, block_size=5))
+        
         self.dropblock = LinearScheduler(
             DropBlock3D(drop_prob=0., block_size=5),
             start_value=0.,
             stop_value=0.5,
-            nr_steps=5000
-        )
-
+            nr_steps=5000)
         channels = conv_channels
-        self.features.add_module('drop_block', DropBlock3D(drop_prob=0.1, block_size=5))
 
         for i, num_layers in enumerate(down_structure):
             for j in range(num_layers):
@@ -125,7 +121,7 @@ class DenseNet(nn.Module):
                 self.features.add_module("block{}_layer{}".format(i + 1, j + 1), conv_layer)
                 channels = conv_layer.out_channels
 
-            # down-sample
+            # down sample
             trans_layer = TransmitBlock(channels, is_last_layer=(i == len(down_structure) - 1))
             self.features.add_module("transition{}".format(i + 1), trans_layer)
             channels = trans_layer.out_channels
@@ -134,10 +130,10 @@ class DenseNet(nn.Module):
 
     def forward(self, x, **return_opts):
         self.dropblock.step()
-        batch_size, _, z, h, w = x.size()
+        b, _, z, h, w = x.size()
 
         features = self.dropblock(self.features(x))
-        pooled = F.adaptive_avg_pool3d(features, 1).view(batch_size, -1)
+        pooled = F.adaptive_avg_pool3d(features, 1).view(b, -1)
         scores = self.classifier(pooled)
 
         if len(return_opts) == 0:
