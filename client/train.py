@@ -72,8 +72,8 @@ def train(filename, device, train_data_loader, model, optimizer, log,
 
 if __name__ == "__main__":
 
-    with open('./config/train_config_client1.json') as j:
-    # with open('./config/train_config_client1_hc.json') as j:
+    with open('./config/train_config_client2_cam.json') as j:
+    # with open('./config/train_config_client2_cam.json') as j:
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
@@ -107,17 +107,17 @@ if __name__ == "__main__":
         return decrypt_params
 
     # pdb.set_trace()
-    save_encrypt = True
+    save_encrypt = False
     if save_encrypt:
         encrypt_params = myencrypt(seed=1434, model_weight=model.state_dict())
         _model_Param = {"model_state_dict": encrypt_params,
                         "client_weight": 1.0,
                         "client_num": 1}
 
-        torch.save(_model_Param, '../server/model/merge_model/initial.pth')
+        torch.save(_model_Param, 'local_centra/initial.pth')
 
     # pdb.set_trace()
-    restore = True
+    restore = False
     restore_path = 'model/initial.pth'  # 'model/model_Param_Bob.pth'
     if restore:
         ob = torch.load(restore_path)
