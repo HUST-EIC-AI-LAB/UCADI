@@ -1,5 +1,5 @@
 {
-  "ip": "0.0.0.0",
+  "ip": "127.0.0.1",
   "send_port": 23332,
   "recv_port": 23333,
   "clients_path": "./config/clients.json",

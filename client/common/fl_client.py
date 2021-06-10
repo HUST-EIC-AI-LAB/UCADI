@@ -5,11 +5,11 @@ import json
 import torch
 import logging
 from time import sleep
-from model.model import densenet3d
-from common.LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
-from encrypt_decrypt import generate_shape, encrypt, decrypt
+from model import densenet3d
+from .LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+from .encrypt_decrypt import generate_shape, encrypt, decrypt
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-from common.tcp_utils import send_head_dir, recv_head_dir, recv_and_write_file, send_file
+from .tcp_utils import send_head_dir, recv_head_dir, recv_and_write_file, send_file
 
 
 class FL_Client(object):
@@ -21,7 +21,7 @@ class FL_Client(object):
             self.configs = json.load(j)
 
         self.server_ip_port = (self.configs['server_ip'], self.configs['server_port'])
-        self.ip_port = (self.configs["ip"], self.configs["send_port"])
+        self.ip_port = (self.configs["ip"], self.configs["work_port"])
         self.pk, self.sk = KeyGen(self.configs['seed'])
         self.model = densenet3d().cuda()
 
@@ -43,7 +43,6 @@ class FL_Client(object):
         send_socket = socket(AF_INET, SOCK_STREAM)
         self.logger.info("registering with server ...")
         try:
-            # pdb.set_trace()
             send_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)

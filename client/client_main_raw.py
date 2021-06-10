@@ -9,14 +9,14 @@ import argparse
 import numpy as np
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 
 from apex import amp
 from time import sleep
-sys.path.append('common')
-from fl_client import FL_Client
-from model.model import densenet3d
-from train import train, add_weight_decay
-from common import TrainDataset, DataLoader, WarmUpLR, Logger
+sys.path.insert(0, os.path.join(sys.path[0], 'common'))
+sys.path.insert(0, os.path.join(sys.path[0], 'model'))
+from model import densenet3d
+from common import TrainDataset, WarmUpLR, Logger, FL_Client, train, add_weight_decay
 
 if __name__ == '__main__':
     print('all start')
@@ -24,9 +24,9 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(description='Client Configuration')
-    parser.add_argument('--client_config', type=str, default='client1_config.json')
-    parser.add_argument('--train_config', type=str, default='train_config_client1.json')
-    parser.add_argument('--logfile', type=str, default='train_valid_client1:.log')
+    parser.add_argument('--client_config', type=str, default='client_config.json')
+    parser.add_argument('--train_config', type=str, default='train_config_client.json')
+    parser.add_argument('--logfile', type=str, default='train_valid_client.log')
     args = parser.parse_args()
 
     # FL_Client() already includes GPU usage
@@ -39,8 +39,7 @@ if __name__ == '__main__':
         train_config = json.load(j)
 
     train_data_train = TrainDataset(train_config['train_data_dir'],
-                                    train_config['train_df_csv'],
-                                    train_config['labels_train_df_csv'])
+                                    train_config['train_df_csv'])
     train_data_loader = DataLoader(dataset=train_data_train,
                                    batch_size=train_config['train_batch_size'],
                                    shuffle=True,
@@ -64,7 +63,7 @@ if __name__ == '__main__':
         optimizer, (train_config['epoch'] - warm_epoch) * iter_per_epoch)
 
     # set up the log file
-    logfile = os.path.join('log', args.logfile)
+    logfile = os.path.join('./log', args.logfile)
     os.remove(logfile) if os.path.exists(logfile) else None
     sys.stdout = Logger(logfile)
     log = logging.getLogger()
@@ -98,7 +97,6 @@ if __name__ == '__main__':
     logger.info("******\ntraining begin\n******")
     for epoch_num in range(client.configs['iteration']):
         request_model_finish = False
-
         while True:
             request_model_result = client.request_model()
             if request_model_result == "ok":
@@ -131,7 +129,6 @@ if __name__ == '__main__':
         logger.info("{} weight is {}".format(client.configs['username'], client.weight/_weight_sum))
         logger.info("weight sum is {}\t client num is {}".format(_weight_sum, _client_num))
 
-        # pdb.set_trace()
         model.load_state_dict(dec_model_state)
         fileName = 'model_state_{}.pth'.format(client.configs['username'])
         update_name = train(filename=fileName, device=device, train_data_loader=train_data_loader,
@@ -147,7 +144,6 @@ if __name__ == '__main__':
         for key in trained_model_state_dict.keys():
             trained_model_state_dict[key] = trained_model_state_dict[key] * client.weight / _weight_sum
 
-        # pdb.set_trace()
         enc_model_state = client.encrypts(trained_model_state_dict)
         _model_Param = {"model_state_dict": enc_model_state,
                         "client_weight": client.weight}
