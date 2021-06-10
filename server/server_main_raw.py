@@ -3,8 +3,8 @@ import os
 import sys
 import time
 import logging
-sys.path.append('common')
-from fl_server import FL_Server
+sys.path.insert(0, os.path.join(sys.path[0], 'common/'))
+from common import FL_Server
 
 if __name__ == '__main__':
 

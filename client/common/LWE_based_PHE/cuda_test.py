@@ -5,6 +5,7 @@ import random
 from torch.utils.cpp_extension import load
 PATH_CPP = os.getcwd() + '/common/LWE_based_PHE/matrix_op/matrix_op_cuda.cpp'
 PATH_CU = os.getcwd() + '/common/LWE_based_PHE/matrix_op/matrix_op_cuda_kernel.cu'
+print(os.getcwd())
 matrix_op_cuda = load(
     'matrix_op_cuda', [PATH_CPP, PATH_CU], verbose=True)
 from LWE_based_PHE.matrix_op.matrix_op import matmul, vecmul

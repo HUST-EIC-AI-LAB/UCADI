@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """aggregate all the encrypted weights in the weights directory"""
 import os
-import sys
 import torch
-sys.path.append('common')
 # for loading the encrypted file, import the following:
 # from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
 

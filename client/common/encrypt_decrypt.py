@@ -3,7 +3,7 @@ import os
 import copy
 import torch
 import collections
-from LWE_based_PHE.cuda_test import KeyGen, Enc, Dec
+from .LWE_based_PHE import KeyGen, Enc, Dec
 
 
 def encrypt(public_key, model_weight):
@@ -16,15 +16,6 @@ def encrypt(public_key, model_weight):
     """
     prec = 32
     bound = 2 ** 3
-    # model = torch.load(model_weight)
-
-    # if not os.path.exists(shape_path):
-    # 	model_parameters_dict = collection.OrderedDict()
-    # 	for key, value in model:
-    # 		model_parameters_dict[key] = torch.numel(value), value.shape
-    # 	torch.save(model_parameters_dict, shape_path)
-
-    # shape_parameter =  torch.load(shape_path)
     params_list = list()
     for key, value in model_weight.items():
         length = torch.numel(value) // 65536
@@ -82,26 +73,16 @@ def generate_shape(path, model):
             torch.save(model_parameters_dict, path)
 
 
-if __name__ == '__main__':
-    pk, sk = KeyGen()
-    model = torch.load("./model_state/initial.pth")
-    generate_shape("shape_parameter.pth", model)
-    shape_parameter = torch.load("shape_parameter.pth")
-    print(model)
-    diff_model = dict()
-    for key in model.keys():
-        diff_model[key] = model[key] - model[key]
-    encrypt_params = encrypt(pk, diff_model)
-    # print(encrypt_params)
-    # sum_encrypted_params = [(params + params) for params in encrypt_params]
-    decrypt_params = decrypt(sk, encrypt_params, shape_parameter)
-    # print(decrypt_params)
-    # model = torch.load("weight_encrypted.pth")
-    torch.save(encrypt_params, "initial.pth")
-    # correct = 0
-    # count = 0
-    # for key in model.keys():
-    #    correct += torch.sum(torch.eq(model[key], dencrypt_params[key])).item()
-    #    count += torch.numel(model[key])
-    # acc = float(correct / count)
-    # print('Accuracy: %.2f%%' % (acc * 100))
+# if __name__ == '__main__':
+#     pk, sk = KeyGen()
+#     model = torch.load("./model_state/initial.pth")
+#     generate_shape("shape_parameter.pth", model)
+#     shape_parameter = torch.load("shape_parameter.pth")
+#     print(model)
+#     diff_model = dict()
+#     for key in model.keys():
+#         diff_model[key] = model[key] - model[key]
+#     encrypt_params = encrypt(pk, diff_model)
+#     decrypt_params = decrypt(sk, encrypt_params, shape_parameter)
+#     torch.save(encrypt_params, "initial.pth")
+
