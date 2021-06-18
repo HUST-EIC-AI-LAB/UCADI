@@ -6,19 +6,19 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## 1. Introduction
 
-**We developed a Federated Learning (FL) Framework for international researchers to collaboratively train an AI diagnosis model on multiple data centers without sharing the training data.** 
+**We developed a Federated Learning (FL) Framework for international researchers to collaboratively train an AI diagnosis model (initially for CT-based COVID-19 diagnosis) on multiple data centres without explicitly sharing the data.** 
 
-Please follow this User Guide for effective deployments at hospitals and non-profit organizations.
+Please follow this user guide for effective deployments at hospitals and non-profit organizations.
 
-Similar to most C/S (Client/Server) structures, this framework consists of two parts: Server and Client. To apply this framework in real scenarios, we need to setup one server and  at least one client and ensure the client can ping the server successfully if it try to join in the training group. Taking hospitals as example, a machine works in the cloud as the central server to operate encrypted parameters from clients, update the global model and deliver the updated global model to  those clients in the training group. Meanwhile, a hospital's machine works as the client which has enough computing power to train the model locally and return the trained model to server to contribute to the global model.
+Like most C/S structures, this framework consists of a server (computation centre) and clients (hospitals). To start with, we need to set up the server and has at least one client. The clients are ensured to ping the server successfully if they try to join in the training process. In our case, a GPU-free cluster works in the cloud as the central server to collect encrypted parameters from clients, aggregate the global model and deliver the updated weights to the clients (partnership hospitals) in the training group. Meanwhile, machines at hospitals sites must have enough computing power (e.g., GPU) to train the neural network locally (for on or a few epochs) then return the parameters to the server to contribute to the global aggregated model.
 
-Once the scripts are executed, the hospitals will train their own models locally and transmit the encrypted model parameters to the server which merges all parameter packets collected from the clients to update the global model. Then the server deliver the newly merged model parameters to each client maintaining the FL process **(client not transmits packets to server timely will be deleted from FL process)**. This process will be last for enough rounds before the global model reaches the desired performance.
+Once the process begins, the hospitals will train their models locally and transmit the encrypted model parameters to the server, merging all parameter packets collected from the clients to update the global model. Then the server delivers the newly merged model parameters to each client, maintaining the FL process **(clients that do not transmit packets to the server timely will be removed from FL process)**. This trainin process will last for enough iterations until the global model reaches the satisfied performance.
 
 Besides the functionality described above, we equip our framework with additional features as following:
 
-1. **Homomorphic encryption**: each client could encrypt the parameters of their local trained model  via the generated private key, and the server will just aggregate those encrypted parameters without the ability to encode them;
+1. **Homomorphic encryption**: each client could encrypt the parameters of their local trained model via the generated private key, and the server will aggregate those encrypted parameters without the ability to decode them;
 
-2. **Weighted aggregation**: each client contribute the local trained model with weight to the global model , and the weight depends on the size of dataset for training on client.
+2. **Weighted aggregation**: each client contribute the local trained model with weight to the global model, and the weight depends on the size of the training data of that client.
 
 
 ### 1.1 Communication settings
