@@ -1,7 +1,6 @@
-## [UCADI] COVID-19 Diagnosis With Federated Learning
-
-<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
-
+## [UCADI] COVID-19 Diagnosis With Federated Learning 
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png"/></a>
+[![DOI](https://zenodo.org/badge/253738016.svg)](https://zenodo.org/badge/latestdoi/253738016)
 
 ### 1. Intro
 
@@ -9,7 +8,7 @@
 
 We provide instructions for the effective deployment of UCADI in this manual.
 
-Similar to most structures, this framework consists of two parts: Server and Client. To apply this framework, it needs to set up a server first and has at least one client, which is ensured to be capable of successfully pinging the server. Specifically, to train a federated model over various hospitals, a machine (a home PC is sufficient) is required to work in the cloud as the central server to collect, aggregate, and dispatch encrypted model parameters of clients. Meanwhile, hospitals need computer infrastructure (i.e., a GPU workstation) to function as the clients, which holds enough resources (i.e., computation power and internet bandwidth) to locally train the neural network and send/receive the trained/aggregated models to/from the server.
+Similar to prior structures, this framework consists of two parts: Server and Client. To apply this framework, it needs to set up a server first and has at least one client, which is ensured to be capable of successfully pinging the server. Specifically, to train a federated model over various hospitals, a machine (a home PC is sufficient) is required to work in the cloud as the central server to collect, aggregate, and dispatch encrypted model parameters of clients. Meanwhile, hospitals need computer infrastructure (i.e., a GPU workstation) to function as the clients, which holds enough resources (i.e., computation power and internet bandwidth) to locally train the neural network and send/receive the trained/aggregated models to/from the server.
 
 Once the process starts, the hospitals will train their own local models and transmit the encrypted parameters to the server, merging all parameter packets collected from the clients to update the global model. Then the server delivers the newly merged model parameters to each client, maintaining the FL process **(client which does not transmit packets to the server in time will be removed from the current epoch of FL process)**. This process will be last for enough epochs before the federated model reaches the desired performance.
 
@@ -19,6 +18,7 @@ Furthermore, we equip the framework with additional features described as follow
 2. **Weighted aggregation**: each client contributes the local trained parameters with weight to the global federated model. The weight depends on the size of the dataset for training on the client.
 
 #### 1.1 Communication settings
+
 
 For the need of encryption and weighted aggregation, it is not sufficient if the server and client only communicate the model parameters between them.
 
@@ -214,7 +214,7 @@ Our FL process has more flexibility. For the server, developers can select all r
 
 ### 4. Flow chart 
 
-Our communication process is based on Socket. If you want to successfully deploy this framework in the real scenario, developers may need to consider the port setting and firewall settings to ensure the network connection is successful.
+Our communication process is based on Web Socket. If you want to successfully deploy this framework in the real scenario, developers may need to consider the port setting and firewall settings to ensure the network connection is successful.
 
 The flow chart is as following:
 
