@@ -1,15 +1,19 @@
-# -*- coding: utf-8 -*-
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import os
 import sys
-import pdb
 import json
+# import pdb
 import torch
+import torch.nn.functional as F
+
 from apex import amp
 sys.path.append('common')
-import torch.nn.functional as F
 from model import densenet3d
-from .encrypt_decrypt import encrypt, decrypt
 from .LWE_based_PHE import KeyGen
+from .encrypt_decrypt import encrypt, decrypt
+
 
 def add_weight_decay(net, l2_value, skip_list=()):
     """no L2 regularisation on the bias of the model, in optimiser"""

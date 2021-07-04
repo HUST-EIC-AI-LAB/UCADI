@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import torch
 import random
 import numpy as np
@@ -134,4 +138,3 @@ class TestDataset(Dataset):
 
     def __len__(self):
         return len(self.names_test)
-

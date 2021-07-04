@@ -1,27 +1,24 @@
-# COVID-19 Diagnosis With Federated Learning
+## [UCADI] COVID-19 Diagnosis With Federated Learning
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
-This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 Unported License</a>.
 
 
-## 1. Introduction
+### 1. Intro
 
-**We developed a Federated Learning (FL) Framework for international researchers to collaboratively train an AI diagnosis model on multiple data centers without sharing the training data.** 
+**We developed a Federated Learning (FL) Framework for global researchers to collaboratively train an AI diagnostic model based on various data centres without data sharing, in a name of UCADI.** 
 
-Please follow this User Guide for effective deployments at hospitals and non-profit organizations.
+We provide instructions for the effective deployment of UCADI in this manual.
 
-Similar to most C/S (Client/Server) structures, this framework consists of two parts: Server and Client. To apply this framework in real scenarios, we need to setup one server and  at least one client and ensure the client can ping the server successfully if it try to join in the training group. Taking hospitals as example, a machine works in the cloud as the central server to operate encrypted parameters from clients, update the global model and deliver the updated global model to  those clients in the training group. Meanwhile, a hospital's machine works as the client which has enough computing power to train the model locally and return the trained model to server to contribute to the global model.
+Similar to most structures, this framework consists of two parts: Server and Client. To apply this framework, it needs to set up a server first and has at least one client, which is ensured to be capable of successfully pinging the server. Specifically, to train a federated model over various hospitals, a machine (a home PC is sufficient) is required to work in the cloud as the central server to collect, aggregate, and dispatch encrypted model parameters of clients. Meanwhile, hospitals need computer infrastructure (i.e., a GPU workstation) to function as the clients, which holds enough resources (i.e., computation power and internet bandwidth) to locally train the neural network and send/receive the trained/aggregated models to/from the server.
 
-Once the scripts are executed, the hospitals will train their own models locally and transmit the encrypted model parameters to the server which merges all parameter packets collected from the clients to update the global model. Then the server deliver the newly merged model parameters to each client maintaining the FL process **(client not transmits packets to server timely will be deleted from FL process)**. This process will be last for enough rounds before the global model reaches the desired performance.
+Once the process starts, the hospitals will train their own local models and transmit the encrypted parameters to the server, merging all parameter packets collected from the clients to update the global model. Then the server delivers the newly merged model parameters to each client, maintaining the FL process **(client which does not transmit packets to the server in time will be removed from the current epoch of FL process)**. This process will be last for enough epochs before the federated model reaches the desired performance.
 
-Besides the functionality described above, we equip our framework with additional features as following:
+Furthermore, we equip the framework with additional features described as following:
 
-1. **Homomorphic encryption**: each client could encrypt the parameters of their local trained model  via the generated private key, and the server will just aggregate those encrypted parameters without the ability to encode them;
+1. **Homomorphic encryption**: each client is able to encrypt the parameters of their local trained model via the generated private key, and the server will aggregate those encrypted parameters without the ability to decrypt them;
+2. **Weighted aggregation**: each client contributes the local trained parameters with weight to the global federated model. The weight depends on the size of the dataset for training on the client.
 
-2. **Weighted aggregation**: each client contribute the local trained model with weight to the global model , and the weight depends on the size of dataset for training on client.
-
-
-### 1.1 Communication settings
+#### 1.1 Communication settings
 
 For the need of encryption and weighted aggregation, it is not sufficient if the server and client only communicate the model parameters between them.
 
@@ -108,7 +105,7 @@ There are some examples below:
 >   "model_path": "./model/model.py",
 >   "weight_path": "./model/initial.pth",
 >   "models_dir": "./model",
->   "seed": 1434,
+>   "seed": 1434
 >   }
 >   ```
 
@@ -177,7 +174,6 @@ To set up:
 ```bash
 cd docker
 sh build_docker.sh
-# after build finished
 sh launch_docker.sh
 ```
 
@@ -216,7 +212,7 @@ CUDA_VISIBLE_DEVICES=2,3 python client2_main.py
 
 Our FL process has more flexibility. For the server, developers can select all registered clients to do aggregation. Or you can also set a minimum number of clients `min_clients` and a `timeout` delay: when enough number of clients finish transmitting or the time for clients to upload is timeout (server starts timing when receiving the first packet from any client), the server can start the aggregation process in advance, and no longer receive requests from any client. Meanwhile, server will delete those client not upload timely from training group util they request to join in the training process again.
 
-## 4. Others
+### 4. Flow chart 
 
 Our communication process is based on Socket. If you want to successfully deploy this framework in the real scenario, developers may need to consider the port setting and firewall settings to ensure the network connection is successful.
 

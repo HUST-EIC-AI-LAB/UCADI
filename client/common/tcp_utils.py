@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import os
 import json
 import struct
@@ -26,10 +30,8 @@ def recv_head_dir(conn):
 
 
 def recv_and_write_file(conn, file_dir, buff_size):
-    """
-    receive and save file at the server side
-    :return: saved filename
-    """
+    """ receive and save file at the server side
+    :return: saved filename """
     head_dir = recv_head_dir(conn)
     file_size_bytes, file_name = head_dir['file_size_bytes'], head_dir["filename"]
 

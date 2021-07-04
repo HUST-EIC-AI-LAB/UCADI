@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import os
 import copy
 import torch
@@ -12,8 +16,7 @@ def encrypt(public_key, model_weight):
     model_weight: torch.nn.Module.state_dict()
     return: list(encrypted params)
     Due to the max length is 65536, so we cut each weight to a fixed size = 65536,
-    so that one tensor could to cut to many.
-    """
+    so that one tensor could to cut to many. """
     prec = 32
     bound = 2 ** 3
     params_list = list()
@@ -49,7 +52,7 @@ def decrypt(private_key, encrypted_params, shape_parameter):
         length = params_size // 65536
         # print(length)
         dencrypted = list()
-        for index in range(length):
+        for _ in range(length):
             dencrypted.append(dencrypted_params[ind])
             ind += 1
         dencrypted.append(dencrypted_params[ind][0: (params_size - length * 65536)])
@@ -62,9 +65,8 @@ def decrypt(private_key, encrypted_params, shape_parameter):
 
 def generate_shape(path, model):
     """
-    Record the concret size of each layer about model.
-    It will be used to decrypt.
-    """
+    Record the concrete size of each layer about model.
+    It will be used to decrypt. """
     # print(model)
     if not os.path.exists(path):
         model_parameters_dict = collections.OrderedDict()

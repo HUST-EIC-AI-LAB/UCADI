@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import torch
 import matrix_op_cuda
 

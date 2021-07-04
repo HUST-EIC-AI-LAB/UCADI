@@ -1,10 +1,13 @@
-# -*- coding: utf-8 -*-
-import pdb
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
+# import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dropblock import DropBlock3D, LinearScheduler
 from torch.utils.checkpoint import checkpoint
+from dropblock import DropBlock3D, LinearScheduler
+
 
 config = {
     "act_fn": lambda: nn.LeakyReLU(0.1, inplace=True),

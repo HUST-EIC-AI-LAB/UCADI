@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
+
 import os
 import pdb
 import json
@@ -81,10 +85,12 @@ class FL_Client(object):
                 self.stop()
 
             if recv_dir["msg"] == "ok":
-                fileName = recv_and_write_file(conn=send_socket,
-                                               file_dir='/'.join(self.model_path.split("/")[:-1]) + "/",
-                                               buff_size=self.configs['buff_size'])
-                self.weight_path = os.path.join('/'.join(self.model_path.split("/")[:-1]) + "/", fileName)
+                fileDir = '/'.join(self.model_path.split("/")[:-1]) + "/"
+                fileName = recv_and_write_file(
+                    conn=send_socket,
+                    file_dir=fileDir,
+                    buff_size=self.configs['buff_size'])
+                self.weight_path = os.path.join(fileDir, fileName)
                 self.logger.info("successfully received the model from the server!")
                 return "ok"
             elif recv_dir["msg"] == "wait":
@@ -104,7 +110,8 @@ class FL_Client(object):
             send_socket.bind(self.ip_port)
             send_socket.connect(self.server_ip_port)
 
-            head_dir = json.dumps({'username': self.configs['username'], 'msg': "send_model"})
+            head_dir = json.dumps({'username': self.configs['username'],
+                                   'msg': "send_model"})
             send_head_dir(conn=send_socket, head_dir=head_dir)
             recv_dir = recv_head_dir(conn=send_socket)
 
@@ -114,7 +121,8 @@ class FL_Client(object):
             if recv_dir["msg"] == "ok":
                 self.logger.info("sending model to server...")
                 send_path = self.weight_path if weight_path is None else weight_path
-                send_file(conn=send_socket, file_path=send_path,
+                send_file(conn=send_socket,
+                          file_path=send_path,
                           new_file_name="model_Param_{}_v_{}.pth".format(
                               self.configs["username"], versionNum))
                 self.logger.info("successfully sent the model to the server!")
@@ -132,7 +140,8 @@ class FL_Client(object):
     def pack_param(self, _model_state, _client_weight, save_path=None):
         ob = {"model_state_dict": _model_state,
               "client_weight": _client_weight}
-        torch.save(ob, save_path) if save_path is not None else torch.save(ob, self.weight_path)
+        torch.save(ob, save_path) if save_path is not None \
+            else torch.save(ob, self.weight_path)
 
     @staticmethod
     def unpack_param(_model_param_path):

@@ -1,4 +1,5 @@
-#  Copyright (c) 2020. Hanchen Wang, hc.wang96@gmail.com
+#  Copyright (c) 2021. Jiefeng, Ziwei and Hanchen
+#  jiefenggan@gmail.com, ziwei@hust.edu.cn, hc.wang96@gmail.com
 
 import os, argparse, dicom2nifti, dicom2nifti.settings as settings
 from tqdm import tqdm
