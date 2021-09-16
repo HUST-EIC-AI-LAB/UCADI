@@ -2,22 +2,22 @@
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png"/></a>
 [![DOI](https://zenodo.org/badge/253738016.svg)](https://zenodo.org/badge/latestdoi/253738016)
 
-### 1. Intro
+## Intro
 
-**We developed a Federated Learning (FL) Framework for global researchers to collaboratively train an AI diagnostic model based on various data centres without data sharing, in a name of UCADI.** 
+**We developed a Federated Learning (FL) Framework for global researchers to collaboratively train an AI diagnostic model based on various data centres without data sharing, in the name of UCADI, Unified CT-COVID AI Diagnostic Initiative.** 
 
 We provide instructions for the effective deployment of UCADI in this manual.
 
-Similar to prior structures, this framework consists of two parts: Server and Client. To apply this framework, it needs to set up a server first and has at least one client, which is ensured to be capable of successfully pinging the server. Specifically, to train a federated model over various hospitals, a machine (a home PC is sufficient) is required to work in the cloud as the central server to collect, aggregate, and dispatch encrypted model parameters of clients. Meanwhile, hospitals need computer infrastructure (i.e., a GPU workstation) to function as the clients, which holds enough resources (i.e., computation power and internet bandwidth) to locally train the neural network and send/receive the trained/aggregated models to/from the server.
+Similar to prior structures, this framework consists of two parts: Server and Client. Applying this framework needs to set up a server first and has at least one client, which is ensured to ping the server successfully. Concretely, to train a federated model over various hospitals, a machine (a home PC is sufficient) is required to work in the cloud as the central server to collect, aggregate, and dispatch the encrypted model parameters of clients. Meanwhile, hospitals need more computation resources (usually a GPU workstation) and and sufficient internet bandwid to function as the clients.
 
-Once the process starts, the hospitals will train their own local models and transmit the encrypted parameters to the server, merging all parameter packets collected from the clients to update the global model. Then the server delivers the newly merged model parameters to each client, maintaining the FL process **(client which does not transmit packets to the server in time will be removed from the current epoch of FL process)**. This process will be last for enough epochs before the federated model reaches the desired performance.
+Once the process starts, the hospitals will train their local models and transmit the encrypted parameters to the server. Then the server merges all parameter packets collected from the clients to update the global model, delivers the newly merged model parameters to each actively participating client. The FL process will be last for enough epochs until the federated model reaches the desired performance.
 
-Furthermore, we equip the framework with additional features described as following:
+We equip the framework with some additional features:
 
-1. **Homomorphic encryption**: each client is able to encrypt the parameters of their local trained model via the generated private key, and the server will aggregate those encrypted parameters without the ability to decrypt them;
-2. **Weighted aggregation**: each client contributes the local trained parameters with weight to the global federated model. The weight depends on the size of the dataset for training on the client.
+1. **Homomorphic encryption**: each client is able to encrypt the parameters of their local trained model via the specified private key, and the server will aggregate those encrypted parameters without the ability to decrypt them;
+2. **Weighted aggregation**: each client contributes the locally trained parameters with weight to the global federated model. The weight depends on the size of the dataset for training on the client.
 
-#### 1.1 Communication settings
+#### Communication settings
 
 
 For the need of encryption and weighted aggregation, it is not sufficient if the server and client only communicate the model parameters between them.
@@ -38,15 +38,11 @@ We define the file content format for this framework as follows:
 >
 > ​	"client_num": the number of clients in the current FL process
 
-And we prepare ` pack_params/unpack_params`  functions both in Server and Client Class to generate/parse the file we mentioned above.
+And we prepare ` pack_params/unpack_params`  functions both in Server and Client Class to generate/parse the file we mentioned above. If the encryption or weighted aggregation are not needed, via redefining the file format.  All the transmitted files are stored in `.pth` format.
 
-If someone doesn't need the Encryption or Weighted Aggregation, the file format could be redefined.  All the files are stored in `.pth` format to transmit.
+### Server
 
-### 1.2 Server
-
-**1.2.1**   `./server` folder contains two main scripts `server_main.py` and `fl_server.py`. In `fl_server.py` we define the `FL_Server`  class, and in `server_main.py` we provide an example using `FL_Server` class.
-
-**1.2.2**   Before starting the FL process, we need to set the server's configurations in `./server/config/config.json`.
+`./server` folder contains two main scripts `server_main.py` and `fl_server.py`. In `fl_server.py` we define the `FL_Server`  class, and in `server_main.py` we provide an example using `FL_Server` class. Before starting the FL process, we need to set the server's configurations in `./server/config/config.json`.
 
 > ```json
 > {
@@ -75,23 +71,11 @@ If someone doesn't need the Encryption or Weighted Aggregation, the file format 
 
 `iterations`:  rounds of FL training process.
 
-**1.2.3**  `./server/config/clients.json` stores the `username`  and `password`  of each client.  Clients need to register to the server via this information. If the information is wrong, the register request will be refused and won't be allowed to participate in the FL process.
+`./server/config/clients.json` stores the `username`  and `password`  of each client.  Clients need to register to the server via this information. If the information is wrong, the register request will be refused and won't be allowed to participate in the FL process.
 
-There are some examples below:
+### Client
 
-```json
-{
-"Bob": "123456", 
-"Alan": "123456", 
-"John": "123456"
-}
-```
-
-### 1.3 Client
-
-**1.3.1**  `./client`  folder contains two main scripts: In `fl_client.py`,  we define the `FL_Client` class,  and in `client_main.py`,  we provide an example of how to run it.
-
-**1.3.2**  We need to set the client's configurations in `./client/config/client1_config.json`.
+`./client`  folder contains two main scripts: In `fl_client.py`,  we define the `FL_Client` class,  and in `client_main.py`,  we provide an example of how to run it. The client's configurations are needed setting (template: ./client/config/client1_config.json`).
 
 > ```json
 > {
@@ -125,7 +109,7 @@ There are some examples below:
 
 `seed`: the seed is used to generate private key.
 
-**1.3.3** Because the training process also takes place on the Client machine, you also need to set your own train hyperparameter. Our configurations are given in the following as an example of `train_config_client.json'`:
+Because the training process also takes place on the Client machine, you also need to set your own train hyperparameter. Our configurations are given in the following as an example of `train_config_client.json'`:
 
 > ```json
 > {
@@ -140,13 +124,15 @@ There are some examples below:
 >   }
 >   ```
 
-## 2.  FL framework installation
 
-### Install FL framework from Github
+
+## Installation
+
+**Install from GitHub:**
 
 Developers could run this command `git clone https://github.com/HUST-EIC-AI-LAB/COVID-19-Federated-Learning.git` to deploy your own FL task.
 
-#### Installation Dependencies
+**Dependencies：**
 
 Some dependencies may need to be pre-installed, e.g. PyTorch and CUDA, before you can train on GPU. Run `pip install -r requirement.txt` to install the required dependencies
 
@@ -155,7 +141,7 @@ In `requirement.txt`, we use `PyTorch` that matches `cuda == 9.2`.
 
 If there are problems in using torch, it may be caused by version mismatch between torch and CUDA, please check your CUDA version by `cat /usr/local/cuda/version.txt` , and download the correct version of PyTorch from the official website.
 
-**ATTENTION:**
+**Attention:**
 
 `ninja`  and `re2c`  are C ++ extension methods,  you should install them as described in their github.
 
@@ -177,9 +163,11 @@ sh build_docker.sh
 sh launch_docker.sh
 ```
 
-## 3. Implementation of FL
 
-**3.1**   We have reduced the operations required in the communication process as much as possible. Yet, the Client training process and the Server aggregating process still need to be customized by the researcher.
+
+## Implementation
+
+We have reduced the operations required in the communication process as much as possible. Yet, the Client training process and the Server aggregating process still need to be customized by the researcher.
 
 We provide a rough template for the communication process, `./server/server_main_raw.py`  and `./client/client_main_raw.py`. Therefore you can design your own federated learning process accordingly.
 
@@ -208,14 +196,36 @@ CUDA_VISIBLE_DEVICES=2,3 python client2_main.py
 # more clients can be added
 ```
 
-**3.2  Some tips**
+**Some tips**
 
-Our FL process has more flexibility. For the server, developers can select all registered clients to do aggregation. Or you can also set a minimum number of clients `min_clients` and a `timeout` delay: when enough number of clients finish transmitting or the time for clients to upload is timeout (server starts timing when receiving the first packet from any client), the server can start the aggregation process in advance, and no longer receive requests from any client. Meanwhile, server will delete those client not upload timely from training group util they request to join in the training process again.
+Our FL process has more flexibility. For the server, developers can select all registered clients to do aggregation. Or instead, you can also set a minimum number of clients `min_clients` and a maximum waiting time `timeout`. When enough clients finish transmitting or the time for clients to upload is running out (server starts timing when receiving the first packet from any client), the server will execute the aggregation process while no longer accept requests from any client. Meanwhile, the server will delete those clients not upload timely from the training group until they request to join in the training process again.
 
-### 4. Flow chart 
+## Flow chart 
 
 Our communication process is based on Web Socket. If you want to successfully deploy this framework in the real scenario, developers may need to consider the port setting and firewall settings to ensure the network connection is successful.
 
 The flow chart is as following:
 
 ![](./pic/flow_chart.jpg)
+
+
+
+## Citation 
+
+If you find UCADI useful, please cite our tech report (outdated), a more recent draft is available upon request.
+
+```bibtex
+@article{COVIDFL,
+	title={A collaborative online AI engine for CT-based COVID-19 diagnosis},
+	author={Xu, Yongchao and Ma, Liya and others},
+    journal={medRxiv},
+    year={2020},
+    publisher={Cold Spring Harbor Laboratory Preprints}
+}
+```
+
+
+
+## News
+
+**[Jul 2021]:** We submitted the revised manuscript back to Nature Machine Intelligence.

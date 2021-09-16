@@ -27,7 +27,7 @@ def cal_CI(binary_label_file='binary_label_FL.pkl',
     with open(pred_probs_file, 'rb') as f:
         pred_probs = pickle.load(f)
     pred, label = pred_probs[:, 1], binary_label[:, 1]
-    idx_lst = [i for i in range(pred.shape[0])]
+    idx_lst = [idx for idx in range(pred.shape[0])]
     sampled_id_lst = bootstrap(idx_lst, n_sample=1000)
 
     auc_lst = []
@@ -62,6 +62,7 @@ def cal_pvalue(binary_label_file='binary_label_FL.pkl',
 
 
 if __name__ == '__main__':
+
     binary_label_file = 'binary_label_cambridge.pkl'
     pred_probs_file = 'pred_probs_cambridge.pkl'
     ci = cal_CI(binary_label_file, pred_probs_file)
