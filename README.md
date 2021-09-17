@@ -215,9 +215,9 @@ The flow chart is as following:
 If you find UCADI useful, please cite our tech report (outdated), a more recent draft is available upon request.
 
 ```bibtex
-@article{COVIDFL,
-	title={A collaborative online AI engine for CT-based COVID-19 diagnosis},
-	author={Xu, Yongchao and Ma, Liya and others},
+@article{UCADI,
+    title={A collaborative online AI engine for CT-based COVID-19 diagnosis},
+    author={Xu, Yongchao and Ma, Liya and others},
     journal={medRxiv},
     year={2020},
     publisher={Cold Spring Harbor Laboratory Preprints}
@@ -228,4 +228,4 @@ If you find UCADI useful, please cite our tech report (outdated), a more recent 
 
 ## News
 
-**[Jul 2021]:** We submitted the revised manuscript back to Nature Machine Intelligence.
+**[Jul 2021]:** We submitted the revised manuscript back to Nature Machine Intelligence, finger crossed!
