@@ -229,4 +229,5 @@ If you find UCADI useful, please cite our tech report (outdated), a more recent 
 ## News
 
 **[Sep 2021]:** We just get accepted by the Nature Machine Intelligence 🔥!
+
 **[Jul 2021]:** We submitted the revised manuscript back to Nature Machine Intelligence, finger crossed!
