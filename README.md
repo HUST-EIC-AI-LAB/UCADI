@@ -215,12 +215,12 @@ The flow chart is as following:
 If you find UCADI useful, please cite our tech report (outdated), a more recent draft is available upon request.
 
 ```bibtex
-@article{UCADI,
-    title={A collaborative online AI engine for CT-based COVID-19 diagnosis},
-    author={Xu, Yongchao and Ma, Liya and others},
-    journal={medRxiv},
-    year={2020},
-    publisher={Cold Spring Harbor Laboratory Preprints}
+@article{ucadi,
+title = {Advancing COVID-19 Diagnosis with Privacy-Preserving Collaboration in Artificial Intelligence},
+author = {Bai, Xiang and Wang, Hanchen and Ma, Liya and Xu, Yongchao and Gan, Jiefeng and others},
+year = 2021,
+journal = {Nature Machine Intelligence},
+publisher = {Nature Publishing Group}
 }
 ```
 
